@@ -1,6 +1,6 @@
 Project Summary
 
-Polyglot Chat is a real-time messaging app that requires users to create an account or sign in, enforces authentication and authorization, and lets people chat one-to-one or in groups. Each user selects a preferred language at first sign-in. Whenever a message is shown in a different language from the reader’s, the interface displays a Translate button to view the message in the reader’s language.
+ChatLingua is a real-time messaging app that requires users to create an account or sign in, enforces authentication and authorization, and lets people chat one-to-one or in groups. Each user selects a preferred language at first sign-in. Whenever a message is shown in a different language from the reader’s, the interface displays a Translate button to view the message in the reader’s language.
 
 Goals
 
@@ -157,3 +157,4 @@ Admin dashboards for moderation and system health.
 License
 
 Open-source friendly. Choose a permissive license that matches your organization’s needs.
+
