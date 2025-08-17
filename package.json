@@ -4,7 +4,10 @@
   "description": "��#\u0000 \u0000C\u0000h\u0000a\u0000t\u0000L\u0000i\u0000n\u0000g\u0000u\u0000a\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "db:build": "cross-env NODE_ENV=dev node database/migration/create-database.js"
   },
   "repository": {
     "type": "git",
@@ -18,10 +21,16 @@
   },
   "homepage": "https://github.com/Yaffa-Solutions/ChatLingua#readme",
   "dependencies": {
+    "cross-env": "^10.0.0",
     "env": "^0.0.2",
+    "env2": "^2.2.2",
     "express": "^5.1.0",
     "jest": "^30.0.5",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "supertest": "^7.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }
