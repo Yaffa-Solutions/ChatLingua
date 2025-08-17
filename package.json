@@ -21,7 +21,10 @@
   },
   "homepage": "https://github.com/Yaffa-Solutions/ChatLingua#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "cross-env": "^10.0.0",
+    "dotenv": "^17.2.1",
     "env": "^0.0.2",
     "env2": "^2.2.2",
     "express": "^5.1.0",

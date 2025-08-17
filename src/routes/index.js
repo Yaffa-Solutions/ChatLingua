@@ -1,10 +1,6 @@
-const express = require('express');
+const router = require('express').Router();
+const { authSignUp } = require('../controllers/signup');
 
-const router = express.Router();
+router.post('/signup', authSignUp);
 
-router.get('/',(req, res)=>{
-  res.send('Welcome to ChatLingua Home Page');
-});
-
-
-module.exports=router;
+module.exports = router;
