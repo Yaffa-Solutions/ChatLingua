@@ -5,15 +5,13 @@ require('dotenv').config();
 
 let config = {};
 try {
-  // اختياري: لو عندك ملف config فيه app.port
   config = require('./config');
 } catch (_) {}
 
-const routes = require('./src/routes'); // لازم يكون Router
+const routes = require('./src/routes'); 
 
 const app = express();
 
-// port من .env ثم من config ثم 5000
 app.set('port', process.env.PORT || (config.app && config.app.port) || 5000);
 
 app.use(cors());

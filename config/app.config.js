@@ -1,5 +1,4 @@
 require('env2')('.env'); // Load environment variables from .env file
-// this file contains the configuration for the application
 
 
 module.exports = {
