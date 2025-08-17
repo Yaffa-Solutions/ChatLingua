@@ -1,10 +1,8 @@
 const express = require('express');
 
 const router = express.Router();
+const routerUser = require('../routes/user');
 
-router.get('/',(req, res)=>{
-  res.send('Welcome to ChatLingua Home Page');
-});
-
+router.use(routerUser);
 
 module.exports=router;

@@ -7,7 +7,9 @@
     "test": "jest",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "db:build": "cross-env NODE_ENV=dev node database/migration/create-database.js"
+    "db:build": "cross-env NODE_ENV=dev node database/migration/create-database.js",
+    "secret":"node scripts/generate-secret.js",
+    "db:seed": "node database/migration/seed_data.js"
   },
   "repository": {
     "type": "git",
