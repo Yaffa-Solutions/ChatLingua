@@ -8,7 +8,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "db:build": "cross-env NODE_ENV=dev node database/migration/create-database.js",
-    "secret":"node scripts/generate-secret.js",
+    "secret": "node scripts/generate-secret.js",
     "db:seed": "node database/migration/seed_data.js"
   },
   "repository": {
@@ -23,11 +23,13 @@
   },
   "homepage": "https://github.com/Yaffa-Solutions/ChatLingua#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cross-env": "^10.0.0",
     "env": "^0.0.2",
     "env2": "^2.2.2",
     "express": "^5.1.0",
     "jest": "^30.0.5",
+    "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "supertest": "^7.1.4"
