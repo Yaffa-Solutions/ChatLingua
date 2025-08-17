@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "nodemon index.js",
-    "db:build": "node database/build.js"
+    "dev": "nodemon index.js",
+    "start":"node index.js",
+    "db:build": "set NODE_ENV=dev && node database/migration/create-data-base.js"
   },
   "repository": {
     "type": "git",
@@ -21,8 +22,10 @@
   "homepage": "https://github.com/Yaffa-Solutions/ChatLingua#readme",
   "dependencies": {
     "env": "^0.0.2",
+    "env2": "^2.2.2",
     "express": "^5.1.0",
     "jest": "^30.0.5",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "supertest": "^7.1.4"
   },

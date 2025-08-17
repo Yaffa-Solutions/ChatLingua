@@ -1,13 +1,14 @@
-const express = require('express');
-const { join } = require('path'); 
+const express = require("express");
+const { join } = require("path");
+const { config } = require("./config/index");
 const app = express();
 
-const routes = require('./src/routes/index');
+const routes = require("./src/routes/index");
 
 app.use(express.json());
-app.use(express.static(join(__dirname,"./public")));
+app.use(express.static(join(__dirname, "./public")));
 
-app.set("port",process.env.PORT||5000);
-app.use('/', routes);
+app.set("port", config.port || 5000);
+app.use(routes);
 
 module.exports = app;
