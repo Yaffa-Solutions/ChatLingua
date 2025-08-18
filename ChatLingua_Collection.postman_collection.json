@@ -1,0 +1,44 @@
+{
+	"info": {
+		"_postman_id": "1247483c-df89-44cf-94c0-9c8f3d3070e2",
+		"name": "ChatLingua_Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43778131",
+		"_collection_link": "https://nadasalha.postman.co/workspace/Nada-Salha's-Workspace~1bc8f94b-b23d-4c53-813c-0bc603525bd3/collection/43778131-1247483c-df89-44cf-94c0-9c8f3d3070e2?action=share&source=collection_link&creator=43778131"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"nada\",\r\n    \"password\": \"pass123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
