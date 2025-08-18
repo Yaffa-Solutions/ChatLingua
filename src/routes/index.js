@@ -7,5 +7,4 @@ const routerProfile=require('./user')
 router.use(routerUser)
 router.use(routerProfile)
 
-
 module.exports=router;

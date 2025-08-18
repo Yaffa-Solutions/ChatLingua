@@ -14,4 +14,6 @@ router.post('/register',SignUp);
 router.get("/profile",authenticateToken ,getProfile);
 router.post("/profile",authenticateToken,postProfile);
 router.put("/profile",authenticateToken,putProfile)
+
+
 module.exports = router;
