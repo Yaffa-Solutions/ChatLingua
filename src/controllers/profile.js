@@ -1,7 +1,10 @@
-const { getProfileByUserId } = require("../models/query/profile");
-const { createProfile } = require("../models/query/profile");
-const { updateProfile } = require("../models/query/profile");
+const {
+  getProfileByUserId,
+  createProfile,
+  updateProfile,
+} = require("../models/query/profile");
 const { CustomError } = require("../middleware/error");
+const profileSchema = require("../../common/validations/profile");
 
 const getProfile = (req, res, next) => {
   getProfileByUserId(req.user.id)
@@ -9,7 +12,7 @@ const getProfile = (req, res, next) => {
       if (!result.rowCount)
         throw new CustomError("User Profile Not found", 404);
       res.json({
-        user: result.rows[0],
+        data: result.rows[0],
       });
     })
     .catch((err) => {
@@ -18,17 +21,22 @@ const getProfile = (req, res, next) => {
 };
 
 const postProfile = (req, res, next) => {
-  const body={user_id :req.user.id,...req.body}
-  createProfile(body)
+  const body = { user_id: req.user.id, ...req.body };
+
+  profileSchema
+    .validateAsync(req.body)
+    .then((result) => {
+      return createProfile(body);
+    })
     .then((result) => {
       if (!result.rowCount)
         throw new CustomError(
           "Unable to create profile. Please try again.",
-          400
+          409
         );
       res.status(201).json({
         message: "Profile created successfully!",
-        user: body,
+        data: body,
       });
     })
     .catch((err) => {
@@ -37,17 +45,22 @@ const postProfile = (req, res, next) => {
 };
 
 const putProfile = (req, res, next) => {
-  const body={user_id :req.user.id,...req.body}
-  updateProfile(body)
+  const body = { user_id: req.user.id, ...req.body };
+  profileSchema
+    .validateAsync(req.body)
+    .then((result) => {
+      console.log({ result });
+      return updateProfile(body);
+    })
     .then((result) => {
       if (!result.rows.length)
         throw new CustomError(
           "Unable to update profile. Please try again.",
-          400
+          409
         );
       res.status(200).json({
         message: "Profile updated successfully!",
-        user: body,
+        data: body,
       });
     })
     .catch((err) => {
