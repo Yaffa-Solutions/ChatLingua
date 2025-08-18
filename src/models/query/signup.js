@@ -1,6 +1,6 @@
 const connection = require("../../database/connection");
 
-const signUpUser = ({
+const addUser = ({
   username,
   password,
 }) => {
@@ -11,4 +11,4 @@ const signUpUser = ({
   );
 };
 
-module.exports = signUpUser;
+module.exports = addUser;
