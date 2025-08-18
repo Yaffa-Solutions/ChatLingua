@@ -7,7 +7,8 @@
     "test": "jest",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "db:build": "cross-env NODE_ENV=dev node database/migration/create-database.js"
+    "db:build": "cross-env NODE_ENV=dev node database/migration/create-database.js",
+    "db:seed": "cross-env NODE_ENV=dev node database/migration/seed-data.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
     "express": "^5.1.0",
     "jest": "^30.0.5",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "pg": "^8.16.3",
     "supertest": "^7.1.4"
   },
