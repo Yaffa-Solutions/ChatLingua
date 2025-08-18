@@ -1,14 +1,13 @@
-class AppError extends Error {
+class CustomError extends Error {
   constructor(message, status) {
     super(message);
     this.status = status;
   }
 }
 
-const errorHandler = (err, req, res, next) => {
-  res
-    .status(err.status || 500)
-    .json({ message: err.message, success: false, status: err.status || 500 });
+const errorHandler = (error, req, res, next) => {
+  console.log(error);
+  res.status(error.status || 500).json({ error: error.message || "something went wrong"});
 };
 
-module.exports = { errorHandler, AppError };
+module.exports = { errorHandler, CustomError };

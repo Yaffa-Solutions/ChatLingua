@@ -1,8 +1,8 @@
 const { userLoginSchema } = require('../../common/validations/userLogin');
-const { getUser } = require('../models/query/user');
+const { getUser } = require('../models/query/login');
 const { comparePassword } = require('../../common/compare/comparePassword');
 const { createToken } = require('../../common/jwt/sign');
-const { AppError } = require('../middleware/error');
+const { CustomError } = require('../middleware/error');
 
 const Login = (req, res, next) => {
   const { body } = req;
@@ -15,13 +15,13 @@ const Login = (req, res, next) => {
     .then(({ rows }) => {
       user = rows[0];
       if (!user) {
-        throw new AppError('User not found', 404);
+        throw new CustomError('User not found', 404);
       }
       return comparePassword(req.body.password, user.password);
     })
     .then((result) => {
       if (!result) {
-        throw new AppError('incorrect password', 401);
+        throw new CustomError('incorrect password', 401);
       }
       const { password, ...rest } = user;
       return createToken(rest);

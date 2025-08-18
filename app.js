@@ -7,6 +7,8 @@ const routes = require("./src/routes");
 const { errorHandler } = require("./src/middleware/error");
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static(join(__dirname, "./public")));
 
 app.set("port", config.app.port || 5000);
