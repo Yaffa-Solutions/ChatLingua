@@ -1,12 +1,11 @@
 const express = require('express');
 
 const router = express.Router();
-const profileRouter=require('./user')
+const routerUser = require('../routes/user');
+const routerProfile=require('./user')
 
-router.get('/hello',(req, res)=>{
-  res.send('Welcome to ChatLingua Home Page');
-});
+router.use(routerUser)
+router.use(routerProfile)
 
-router.use(profileRouter)
 
 module.exports=router;
