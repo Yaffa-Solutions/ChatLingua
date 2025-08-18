@@ -26,10 +26,10 @@ const Login = (req, res, next) => {
       const { password, ...rest } = user;
       return createToken(rest);
     })
-    .then((token) => {
+    .then(({payload,token}) => {
       res.status(200).json({
         message: 'user logged in successfully ',
-        data: req.body,
+        data: payload,
         token,
       });
     })

@@ -7,7 +7,7 @@ const createToken = (payload) => {
       if (err) {
         reject(err);
       } else {
-        resolve(token);
+        resolve({payload,token});
       }
     });
   });
