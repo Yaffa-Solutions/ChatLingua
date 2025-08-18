@@ -6,13 +6,14 @@ const { AppError } = require('../middleware/error');
 
 const Login = (req, res, next) => {
   const { body } = req;
+  let user;
   userLoginSchema
     .validateAsync(body)
     .then(({ username }) => {
       return getUser(username);
     })
     .then(({ rows }) => {
-      const user = rows[0];
+      user = rows[0];
       if (!user) {
         throw new AppError('User not found', 404);
       }
@@ -22,16 +23,15 @@ const Login = (req, res, next) => {
       if (!result) {
         throw new AppError('incorrect password', 401);
       }
-      return createToken(req.body);
+      const { password, ...rest } = user;
+      return createToken(rest);
     })
     .then((token) => {
-      res
-        .status(200)
-        .json({
-          message: 'user logged in successfully ',
-          data: req.body,
-          token,
-        });
+      res.status(200).json({
+        message: 'user logged in successfully ',
+        data: req.body,
+        token,
+      });
     })
     .catch((err) => {
       next(err);
