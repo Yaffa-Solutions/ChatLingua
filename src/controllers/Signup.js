@@ -19,7 +19,7 @@ const SignUp = (req, res ,next) => {
        user = rows[0];
       return createToken(user);
     })
-    .then((token) => {
+    .then(({token}) => {
       res.status(201).json({
         message: 'user registered successfully ',
         data: user,
