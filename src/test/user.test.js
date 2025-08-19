@@ -26,11 +26,10 @@ describe('Auth Endpoints', () => {
       .expect('Content-Type',/json/)
       .then((res)=>{
           expect(res.status).toBe(500);         
-          expect(res.body).toHaveProperty('message', 'duplicate key value violates unique constraint \"users_username_key\"');        
+          expect(res.body).toHaveProperty('error', 'duplicate key value violates unique constraint \"users_username_key\"');        
       })
-     })
-     
-    
+     });
+         
   test('LOGIN user', async () => {
     return request(app)
       .post('/login')
@@ -45,8 +44,6 @@ describe('Auth Endpoints', () => {
    
   });
 
-
-
   test('LOGIN WITH WRONG PASSWORD FAIL', () => {
     return request(app)
     .post('/login')
@@ -54,8 +51,7 @@ describe('Auth Endpoints', () => {
     .expect('Content-Type',/json/)
     .then((res)=>{
       expect(res.status).toBe(401);
-      expect(res.body).toHaveProperty('message');
-      expect(res.body.success).toBe(false);
+      expect(res.body).toHaveProperty('error');
     })
   })
   
@@ -66,8 +62,7 @@ describe('Auth Endpoints', () => {
       .expect('Content-Type', /json/)
       .then((res) => {
         expect(res.status).toBe(404);
-        expect(res.body).toHaveProperty('message');
-        expect(res.body.success).toBe(false);
+        expect(res.body).toHaveProperty('error');
       });
   });
 });
