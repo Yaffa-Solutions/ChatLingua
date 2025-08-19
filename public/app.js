@@ -4,6 +4,9 @@ const createSignUpPage = () => {
   app.innerHTML = "";
   document.body.classList.add("bg-gray-50");
 
+  const escapeHtml = s =>
+    String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
   const main = createElement("main", ["grid", "min-h-screen", "md:grid-cols-2"]);
 
   const leftSection = createElement("section", ["relative", "hidden", "md:block"]);
@@ -29,43 +32,47 @@ const createSignUpPage = () => {
   const signUpDesc = createElement("p", ["mt-1", "text-gray-600", "text-sm"], "Please fill in your details to sign up");
   appendToParent(headerBox, [iconBox, signUpTitle, signUpDesc]);
 
-  const alertBox = createElement("div", ["mb-4", "hidden", "rounded-xl", "border", "p-4", "text-sm"]);
+  const alertBox = document.createElement("span");
+  alertBox.className = "mb-4 hidden block rounded-xl border p-4 text-sm";
+  alertBox.setAttribute("role", "alert");
+  alertBox.setAttribute("aria-live", "polite");
+
   const showAlert = (msgs, type = "error") => {
     const messages = Array.isArray(msgs) ? msgs : [String(msgs)];
-    alertBox.classList.remove("hidden", "border-red-200", "bg-red-50", "text-red-700", "border-green-200", "bg-green-50", "text-green-700");
-    alertBox.classList.add(type === "success" ? "border-green-200" : "border-red-200",
-                           type === "success" ? "bg-green-50" : "bg-red-50",
-                           type === "success" ? "text-green-700" : "text-red-700");
-    const ul = document.createElement("ul");
-    ul.className = "list-disc pl-5 space-y-1";
-    ul.innerHTML = messages.map(m => `<li>${m}</li>`).join("");
-    alertBox.innerHTML = "";
-    alertBox.appendChild(ul);
+    alertBox.classList.remove(
+      "hidden",
+      "border-red-200","bg-red-50","text-red-700",
+      "border-green-200","bg-green-50","text-green-700"
+    );
+    alertBox.classList.add(
+      type === "success" ? "border-green-200" : "border-red-200",
+      type === "success" ? "bg-green-50" : "bg-red-50",
+      type === "success" ? "text-green-700" : "text-red-700"
+    );
+    alertBox.innerHTML = messages.map(m => escapeHtml(m)).join("<br>");
     alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
   };
-  const hideAlert = () => { alertBox.classList.add("hidden"); alertBox.innerHTML = ""; };
 
-  const setFieldError = (wrap, input, msg) => {
+  const hideAlert = () => {
+    alertBox.classList.add("hidden");
+    alertBox.textContent = "";
+  };
+
+  const setFieldError = (wrap, input) => {
     if (!wrap || !input) return;
     input.classList.add("ring-2", "ring-red-300");
-    let p = wrap.querySelector("[data-error]");
-    if (!p) {
-      p = document.createElement("p");
-      p.dataset.error = "true";
-      p.className = "mt-1 text-xs text-red-600";
-      wrap.appendChild(p);
-    }
-    p.textContent = msg;
+    input.setAttribute("aria-invalid", "true");
   };
   const clearFieldError = (wrap, input) => {
-    if (input) input.classList.remove("ring-2", "ring-red-300");
-    const p = wrap?.querySelector("[data-error]");
-    if (p) p.remove();
+    if (!input) return;
+    input.classList.remove("ring-2", "ring-red-300");
+    input.removeAttribute("aria-invalid");
   };
 
   const form = createElement("form", ["space-y-5"]);
   form.method = "POST";
-
+  form.noValidate = true;                          
+  form.addEventListener("invalid", e => e.preventDefault(), true); 
   const userNameDiv = createDivForm("UserName", "text");
   const passwordDiv = createDivForm("Password", "password");
   const confirmPasswordDiv = createDivForm("Confirm Password", "password");
@@ -76,7 +83,7 @@ const createSignUpPage = () => {
 
   if (usernameInput) {
     usernameInput.name = "username";
-    usernameInput.required = true;
+    usernameInput.required = true;           
     usernameInput.autocomplete = "username";
   }
   if (passwordInput) {
@@ -96,7 +103,7 @@ const createSignUpPage = () => {
     if (!passwordInput || !confirmInput) return true;
     if (confirmInput.value === "") { clearFieldError(confirmPasswordDiv, confirmInput); return true; }
     if (passwordInput.value !== confirmInput.value) {
-      setFieldError(confirmPasswordDiv, confirmInput, "Passwords do not match.");
+      setFieldError(confirmPasswordDiv, confirmInput);
       return false;
     }
     clearFieldError(confirmPasswordDiv, confirmInput);
@@ -105,16 +112,18 @@ const createSignUpPage = () => {
   confirmInput?.addEventListener("input", checkPasswordsMatch);
   passwordInput?.addEventListener("input", checkPasswordsMatch);
 
-  const signUpBtn = createElement("button",
+  const signUpBtn = createElement(
+    "button",
     ["w-full","rounded-2xl","bg-gray-900","px-4","py-3","text-sm","font-semibold","text-white","shadow-lg","transition","active:scale-[.99]","hover:bg-black","focus:outline-none","focus:ring-2","focus:ring-gray-300"],
     "Sign Up"
   );
   signUpBtn.type = "submit";
+  signUpBtn.setAttribute("formnovalidate", "");
 
   const loginP = createElement("p", ["mt-6", "text-center", "text-sm", "text-gray-700"]);
   loginP.innerHTML = `Already have an account?
     <a class="font-semibold text-gray-900 underline-offset-4 hover:underline">Login</a>`;
-  loginP.addEventListener("click", () => createLoginPage());
+  loginP.addEventListener("click", () => createProfilePage ());
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -128,11 +137,11 @@ const createSignUpPage = () => {
     const confirm = confirmInput?.value || "";
 
     const errors = [];
-    if (!username) { setFieldError(userNameDiv, usernameInput, "Username is required."); errors.push("Username is required."); }
-    if (!password) { setFieldError(passwordDiv, passwordInput, "Password is required."); errors.push("Password is required."); }
-    if (password && password.length < 6) { setFieldError(passwordDiv, passwordInput, "Password must be at least 6 characters."); errors.push("Password must be at least 6 characters."); }
-    if (!confirm) { setFieldError(confirmPasswordDiv, confirmInput, "Confirm password is required."); errors.push("Confirm password is required."); }
-    if (password && confirm && password !== confirm) { setFieldError(confirmPasswordDiv, confirmInput, "Passwords do not match."); errors.push("Passwords do not match."); }
+    if (!username) { setFieldError(userNameDiv, usernameInput); errors.push("Username is required."); }
+    if (!password) { setFieldError(passwordDiv, passwordInput); errors.push("Password is required."); }
+    if (password && password.length < 6) { setFieldError(passwordDiv, passwordInput); errors.push("Password must be at least 6 characters."); }
+    if (!confirm) { setFieldError(confirmPasswordDiv, confirmInput); errors.push("Confirm password is required."); }
+    if (password && confirm && password !== confirm) { setFieldError(confirmPasswordDiv, confirmInput); errors.push("Passwords do not match."); }
 
     if (errors.length) { showAlert(errors, "error"); return; }
 
@@ -158,7 +167,7 @@ const createSignUpPage = () => {
         const rawMsg = (data?.error || data?.message || "").toString().toLowerCase();
         if (rawMsg.includes("duplicate") && rawMsg.includes("username")) {
           apiErrors.push("Username is already taken.");
-          setFieldError(userNameDiv, usernameInput, "Username is already taken.");
+          setFieldError(userNameDiv, usernameInput);
         }
 
         if (Array.isArray(data?.errors)) apiErrors.push(...data.errors.map(String));
@@ -173,7 +182,7 @@ const createSignUpPage = () => {
 
       showAlert("Account created successfully. Redirecting to login...", "success");
       didRedirect = true;
-      setTimeout(() => { createLoginPage(); }, 700);
+      setTimeout(() => { createProfilePage (); }, 700);
     } catch {
       showAlert("Network error. Please check your connection and try again.", "error");
     } finally {
@@ -195,9 +204,12 @@ const createSignUpPage = () => {
 const createLoginPage = () => {
   app.innerHTML = "";
   document.body.classList.add("bg-gray-50");
+
+  const escapeHtml = s =>
+    String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
   const main = createElement("main", ["grid", "min-h-screen", "md:grid-cols-2"]);
 
-  // Left
   const leftSection = createElement("section", ["relative", "hidden", "md:block"]);
   const img = createElement("img", ["absolute", "inset-0", "h-full", "w-full", "object-cover"]);
   img.src = "./images/img.webp";
@@ -222,7 +234,6 @@ const createLoginPage = () => {
   appendToParent(overlayContent, [welcomeBox]);
   appendToParent(leftSection, [img, overlay, overlayContent]);
 
-  // Right (form)
   const rightSection = createElement("section", ["flex","items-center","justify-center","p-6","md:p-10"]);
   const formContainer = createElement("div", ["w-full","max-w-md"]);
 
@@ -234,55 +245,51 @@ const createLoginPage = () => {
   const loginDesc = createElement("p", ["mt-1","text-gray-600","text-sm"], "Please enter your credentials to continue");
   appendToParent(headerBox, [iconBox, loginTitle, loginDesc]);
 
-  // Alert box (top of form)
-  const alertBox = createElement("div", ["mb-4","hidden","rounded-xl","border","p-4","text-sm"]);
+  const alertBox = document.createElement("span");
+  alertBox.className = "mb-4 hidden block rounded-xl border p-4 text-sm";
+  alertBox.setAttribute("role", "alert");
+  alertBox.setAttribute("aria-live", "polite");
+
   const showAlert = (msgs, type = "error") => {
-    const arr = Array.isArray(msgs) ? msgs : [String(msgs)];
-    alertBox.className = "mb-4 rounded-xl border p-4 text-sm";
-    alertBox.classList.add(type === "success" ? "border-green-200" : "border-red-200",
-                           type === "success" ? "bg-green-50" : "bg-red-50",
-                           type === "success" ? "text-green-700" : "text-red-700");
-    const ul = document.createElement("ul");
-    ul.className = "list-disc pl-5 space-y-1";
-    ul.innerHTML = arr.map(m => `<li>${m}</li>`).join("");
-    alertBox.innerHTML = "";
-    alertBox.appendChild(ul);
-    alertBox.classList.remove("hidden");
+    const messages = Array.isArray(msgs) ? msgs : [String(msgs)];
+    alertBox.classList.remove(
+      "hidden",
+      "border-red-200","bg-red-50","text-red-700",
+      "border-green-200","bg-green-50","text-green-700"
+    );
+    alertBox.classList.add(
+      type === "success" ? "border-green-200" : "border-red-200",
+      type === "success" ? "bg-green-50" : "bg-red-50",
+      type === "success" ? "text-green-700" : "text-red-700"
+    );
+    alertBox.innerHTML = messages.map(m => escapeHtml(m)).join("<br>");
     alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
   };
   const hideAlert = () => { alertBox.classList.add("hidden"); alertBox.innerHTML = ""; };
 
-  // Field error helpers
-  const setFieldError = (wrap, input, msg) => {
+  const setFieldError = (wrap, input) => {
     input?.classList.add("ring-2","ring-red-300");
-    let p = wrap.querySelector("[data-error]");
-    if (!p) {
-      p = document.createElement("p");
-      p.dataset.error = "true";
-      p.className = "mt-1 text-xs text-red-600";
-      wrap.appendChild(p);
-    }
-    p.textContent = msg;
+    input?.setAttribute("aria-invalid", "true");
   };
   const clearFieldError = (wrap, input) => {
     input?.classList.remove("ring-2","ring-red-300");
-    wrap?.querySelector("[data-error]")?.remove();
+    input?.removeAttribute("aria-invalid");
   };
 
   const form = createElement("form", ["space-y-5"]);
   form.method = "POST";
+  form.noValidate = true;                            
+  form.addEventListener("invalid", e => e.preventDefault(), true);
 
-  // Username field
   const usernameDiv = createDivForm("UserName", "text");
   const usernameInput = usernameDiv.querySelector("input");
   if (usernameInput) {
     usernameInput.name = "username";
-    usernameInput.required = true;
+    usernameInput.required = true;                  
     usernameInput.placeholder = "Your username (letters & numbers only)";
     usernameInput.autocomplete = "username";
   }
 
-  // Password field
   const passwordDiv = createElement("div");
   const flexBox = createElement("div", ["flex","items-center","justify-between"]);
   const passLabel = createElement("label", ["mb-1.5","block","text-sm","font-medium","text-gray-800"], "Password");
@@ -302,21 +309,19 @@ const createLoginPage = () => {
   appendToParent(passInputWrapper, [passInput]);
   appendToParent(passwordDiv, [flexBox, passInputWrapper]);
 
-  // Button
   const loginBtn = createElement("button", [
     "w-full","rounded-2xl","bg-gray-900","px-4","py-3","text-sm","font-semibold",
     "text-white","shadow-lg","transition","active:scale-[.99]","hover:bg-black","focus:outline-none",
     "focus:ring-2","focus:ring-gray-300"
   ], "Login");
   loginBtn.type = "submit";
+  loginBtn.setAttribute("formnovalidate", "");      
 
-  // Sign up link
   const signupP = createElement("p", ["mt-6","text-center","text-sm","text-gray-700"]);
   signupP.innerHTML = `Don't have an account?
       <a class="font-semibold text-gray-900 underline-offset-4 hover:underline">Sign Up</a>`;
   signupP.addEventListener("click", () => createSignUpPage());
 
-  // Submit handler
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideAlert();
@@ -328,21 +333,21 @@ const createLoginPage = () => {
     const errors = [];
 
     const usernameRegex = /^[A-Za-z0-9]{3,20}$/;
-    if (!username) { setFieldError(usernameDiv, usernameInput, "Username is required."); errors.push("Username is required."); }
+    if (!username) { setFieldError(usernameDiv, usernameInput); errors.push("Username is required."); }
     else if (!usernameRegex.test(username)) {
-      setFieldError(usernameDiv, usernameInput, "Username must be 3–20 letters/numbers only.");
+      setFieldError(usernameDiv, usernameInput);
       errors.push("Username must be 3–20 letters/numbers only.");
     }
-    if (!password) { setFieldError(passwordDiv, passInput, "Password is required."); errors.push("Password is required."); }
+    if (!password) { setFieldError(passwordDiv, passInput); errors.push("Password is required."); }
 
     if (errors.length) { showAlert(errors, "error"); return; }
 
-    // loading UI
     loginBtn.disabled = true;
     const originalText = loginBtn.textContent;
     loginBtn.classList.add("opacity-80","cursor-not-allowed");
     loginBtn.textContent = "Signing in...";
 
+    let didRedirect = false;
     try {
       const res = await fetch("/login", {
         method: "POST",
@@ -358,8 +363,8 @@ const createLoginPage = () => {
         const raw = (data?.error || data?.message || "").toString();
 
         if (res.status === 401 || /invalid/i.test(raw)) {
-          setFieldError(usernameDiv, usernameInput, "Invalid username or password.");
-          setFieldError(passwordDiv, passInput, "Invalid username or password.");
+          setFieldError(usernameDiv, usernameInput);
+          setFieldError(passwordDiv, passInput);
           msgs.push("Invalid username or password.");
         }
         if (!msgs.length) msgs.push(raw || `${res.status} ${res.statusText || "Login failed"}`);
@@ -368,24 +373,21 @@ const createLoginPage = () => {
         return;
       }
 
-      // Success: save token/user (optional but useful) then go to profile
       try {
         if (data?.token) localStorage.setItem("token", data.token);
         if (data?.data) localStorage.setItem("user", JSON.stringify(data.data));
       } catch {}
 
-      // Redirect
+      didRedirect = true;
       createProfilePage();
     } catch {
       showAlert("Network error. Please check your connection and try again.", "error");
     } finally {
-      // If we didn't redirect, restore button
-      if (!document.body.contains(app) || loginBtn.disabled) {
-        // if redirected, the old DOM is gone; skip restoring
+      if (!didRedirect) {
+        loginBtn.disabled = false;
+        loginBtn.classList.remove("opacity-80","cursor-not-allowed");
+        loginBtn.textContent = originalText;
       }
-      loginBtn.disabled = false;
-      loginBtn.classList.remove("opacity-80","cursor-not-allowed");
-      loginBtn.textContent = originalText;
     }
   });
 
@@ -403,6 +405,20 @@ const createProfilePage = () => {
   app.innerHTML = "";
   document.body.classList.add("bg-gray-50");
 
+  const API_BASE = "http://localhost:5000";
+
+  const LANGS = ["Select Language","Arabic","English","French","Spanish","German","Turkish"];
+
+  const ID_MAP = [
+    0, 
+    1,
+    2, 
+    3, 
+    4, 
+    5, 
+    6 
+  ];
+
   let username = "";
   try {
     const u = JSON.parse(localStorage.getItem("user") || "{}");
@@ -410,324 +426,121 @@ const createProfilePage = () => {
   } catch {}
 
   const main = createElement("main", [
-    "relative",
-    "min-h-screen",
-    "flex",
-    "items-center",
-    "justify-center",
-    "p-6",
-    "overflow-hidden",
+    "relative","min-h-screen","flex","items-center","justify-center","p-6","overflow-hidden"
   ]);
 
-  const blob1 = createElement("div", [
-    "pointer-events-none",
-    "absolute",
-    "-top-24",
-    "-right-24",
-    "h-72",
-    "w-72",
-    "rounded-full",
-    "bg-indigo-300/30",
-    "blur-3xl",
-  ]);
-  const blob2 = createElement("div", [
-    "pointer-events-none",
-    "absolute",
-    "-bottom-24",
-    "-left-24",
-    "h-72",
-    "w-72",
-    "rounded-full",
-    "bg-violet-300/30",
-    "blur-3xl",
-  ]);
+  const blob1 = createElement("div", ["pointer-events-none","absolute","-top-24","-right-24","h-72","w-72","rounded-full","bg-indigo-300/30","blur-3xl"]);
+  const blob2 = createElement("div", ["pointer-events-none","absolute","-bottom-24","-left-24","h-72","w-72","rounded-full","bg-violet-300/30","blur-3xl"]);
 
-  const container = createElement("div", [
-    "w-full",
-    "max-w-2xl",
-    "bg-white",
-    "rounded-3xl",
-    "shadow-xl",
-    "ring-1",
-    "ring-black/5",
-    "overflow-hidden",
-  ]);
+  const container = createElement("div", ["w-full","max-w-2xl","bg-white","rounded-3xl","shadow-xl","ring-1","ring-black/5","overflow-hidden"]);
+  const banner = createElement("div", ["relative","h-28","bg-gradient-to-r","from-indigo-600","to-violet-600"]);
 
-  const banner = createElement("div", [
-    "relative",
-    "h-28",
-    "bg-gradient-to-r",
-    "from-indigo-600",
-    "to-violet-600",
-  ]);
-
-  const avatarWrap = createElement("div", [
-    "relative",
-    "mx-auto",
-    "-mt-12",
-    "h-28",
-    "w-28",
-  ]);
-
-  const previewImg = createElement("img", [
-    "h-28",
-    "w-28",
-    "rounded-full",
-    "object-cover",
-    "border-4",
-    "border-white",
-    "shadow-md",
-    "bg-white",
-  ]);
-  previewImg.src = "./images/default-avatar.png";
-
-  const avatarOverlay = createElement(
-    "button",
-    [
-      "absolute",
-      "bottom-0",
-      "right-0",
-      "translate-x-1",
-      "translate-y-1",
-      "rounded-full",
-      "bg-gray-900",
-      "text-white",
-      "px-2.5",
-      "py-1.5",
-      "text-xs",
-      "shadow",
-      "hover:bg-black",
-      "focus:outline-none",
-      "focus:ring-2",
-      "focus:ring-gray-300",
-    ],
-    "Change"
-  );
-  const uploadInput = createElement("input");
-  uploadInput.type = "file";
-  uploadInput.accept = "image/*";
-  uploadInput.classList.add("hidden");
-
-  avatarOverlay.addEventListener("click", () => uploadInput.click());
-  uploadInput.addEventListener("change", (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => (previewImg.src = reader.result);
-      reader.readAsDataURL(file);
-    }
-  });
-
-  appendToParent(avatarWrap, [previewImg, avatarOverlay, uploadInput]);
-
-  const header = createElement("div", ["px-8", "text-center", "mt-2", "mb-4"]);
+  const header = createElement("div", ["px-8","text-center","mt-6","mb-4"]);
   const title = createElement(
     "h2",
-    ["text-2xl", "font-bold", "text-gray-900"],
+    ["text-2xl","font-bold","text-gray-900"],
     username ? `Hello, ${username}` : "Your Profile"
   );
-  const subtitle = createElement(
-    "p",
-    ["text-sm", "text-gray-600"],
-    "Add your details to personalize your experience"
-  );
+  const subtitle = createElement("p", ["text-sm","text-gray-600"], "Add your details to personalize your experience");
   appendToParent(header, [title, subtitle]);
 
-  const alertBox = createElement("div", [
-    "mx-8",
-    "hidden",
-    "rounded-xl",
-    "border",
-    "p-4",
-    "text-sm",
-    "mb-2",
-  ]);
-  const showAlert = (msgs, type = "error") => {
+  const alertBox = createElement("span", ["mx-8","hidden","block","rounded-xl","border","p-4","text-sm","mb-2"]);
+  alertBox.setAttribute("role","alert");
+  alertBox.setAttribute("aria-live","polite");
+  const showAlert = (msgs, type="error") => {
     const arr = Array.isArray(msgs) ? msgs : [String(msgs)];
-    alertBox.className = "mx-8 rounded-xl border p-4 text-sm mb-2";
+    alertBox.className = "mx-8 block rounded-xl border p-4 text-sm mb-2";
     alertBox.classList.add(
-      type === "success" ? "border-green-200" : "border-red-200",
-      type === "success" ? "bg-green-50" : "bg-red-50",
-      type === "success" ? "text-green-700" : "text-red-700"
+      type==="success" ? "border-green-200" : "border-red-200",
+      type==="success" ? "bg-green-50"    : "bg-red-50",
+      type==="success" ? "text-green-700" : "text-red-700"
     );
-    const ul = document.createElement("ul");
-    ul.className = "list-disc pl-5 space-y-1";
-    ul.innerHTML = arr.map((m) => `<li>${m}</li>`).join("");
-    alertBox.innerHTML = "";
-    alertBox.appendChild(ul);
+    alertBox.innerHTML = arr.map(m => String(m)).join("<br>");
     alertBox.classList.remove("hidden");
-    alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    alertBox.scrollIntoView({ behavior:"smooth", block:"center" });
   };
-  const hideAlert = () => {
-    alertBox.classList.add("hidden");
-    alertBox.innerHTML = "";
+  const hideAlert = () => { alertBox.classList.add("hidden"); alertBox.innerHTML = ""; };
+
+  const setFieldError = (_wrap, input) => {
+    input?.classList.add("ring-2","ring-red-300");
+    input?.setAttribute("aria-invalid","true");
+  };
+  const clearFieldError = (_wrap, input) => {
+    input?.classList.remove("ring-2","ring-red-300");
+    input?.removeAttribute("aria-invalid");
   };
 
-  const form = createElement("form", ["px-8", "pb-8", "space-y-6"]);
+  const form = createElement("form", ["px-8","pb-8","space-y-6"]);
+  form.noValidate = true;
+  form.addEventListener("invalid", e => e.preventDefault(), true);
 
-  const setFieldError = (wrap, input, msg) => {
-    input?.classList.add("ring-2", "ring-red-300");
-    let p = wrap.querySelector("[data-error]");
-    if (!p) {
-      p = document.createElement("p");
-      p.dataset.error = "true";
-      p.className = "mt-1 text-xs text-red-600";
-      wrap.appendChild(p);
-    }
-    p.textContent = msg;
-  };
-  const clearFieldError = (wrap, input) => {
-    input?.classList.remove("ring-2", "ring-red-300");
-    wrap?.querySelector("[data-error]")?.remove();
-  };
-
-  const LANGS = [
-    { label: "Select Language", value: "" },
-    { label: "🇸🇦 Arabic", value: "arabic" },
-    { label: "🇬🇧 English", value: "english" },
-    { label: "🇫🇷 French", value: "french" },
-    { label: "🇪🇸 Spanish", value: "spanish" },
-    { label: "🇩🇪 German", value: "german" },
-    { label: "🇹🇷 Turkish", value: "turkish" },
-  ];
 
   const nativeDiv = createElement("div");
-  const nativeLabel = createElement(
-    "label",
-    ["block", "mb-1.5", "text-sm", "font-medium", "text-gray-800"],
-    "Native Language"
-  );
+  const nativeLabel = createElement("label", ["block","mb-1.5","text-sm","font-medium","text-gray-800"], "Native Language");
   const nativeSelect = createElement("select", [
-    "w-full",
-    "rounded-xl",
-    "border",
-    "border-gray-300",
-    "px-3",
-    "py-2.5",
-    "text-sm",
-    "bg-white",
-    "focus:border-gray-400",
-    "focus:ring-2",
-    "focus:ring-gray-200",
-    "transition",
+    "w-full","rounded-xl","border","border-gray-300","px-3","py-2.5","text-sm","bg-white",
+    "focus:border-gray-400","focus:ring-2","focus:ring-gray-200","transition"
   ]);
-  LANGS.forEach((l) => {
-    const opt = createElement("option", [], l.label);
-    opt.value = l.value;
-    nativeSelect.appendChild(opt);
+  LANGS.forEach((lang,index) => {
+    const option = createElement("option", [], lang);
+    option.value = index; 
+    nativeSelect.appendChild(option);
   });
   appendToParent(nativeDiv, [nativeLabel, nativeSelect]);
 
   const learningDiv = createElement("div");
-  const learningLabel = createElement(
-    "label",
-    ["block", "mb-1.5", "text-sm", "font-medium", "text-gray-800"],
-    "Learning Language"
-  );
+  const learningLabel = createElement("label", ["block","mb-1.5","text-sm","font-medium","text-gray-800"], "Learning Language");
   const learningSelect = createElement("select", [
-    "w-full",
-    "rounded-xl",
-    "border",
-    "border-gray-300",
-    "px-3",
-    "py-2.5",
-    "text-sm",
-    "bg-white",
-    "focus:border-gray-400",
-    "focus:ring-2",
-    "focus:ring-gray-200",
-    "transition",
+    "w-full","rounded-xl","border","border-gray-300","px-3","py-2.5","text-sm","bg-white",
+    "focus:border-gray-400","focus:ring-2","focus:ring-gray-200","transition"
   ]);
-  LANGS.forEach((l) => {
-    const opt = createElement("option", [], l.label);
-    opt.value = l.value;
-    learningSelect.appendChild(opt);
+  LANGS.forEach((lang,index) => {
+    const option = createElement("option", [], lang);
+    option.value = index;
+    learningSelect.appendChild(option);
   });
   appendToParent(learningDiv, [learningLabel, learningSelect]);
 
-  const summary = createElement("div", ["flex", "gap-2", "flex-wrap"]);
-  const chip = (text) =>
-    createElement(
-      "span",
-      [
-        "inline-flex",
-        "items-center",
-        "gap-1",
-        "rounded-full",
-        "bg-gray-100",
-        "px-3",
-        "py-1",
-        "text-xs",
-        "text-gray-700",
-      ],
-      text
-    );
+  const imageUrlDiv = createElement("div");
+  const imageUrlLabel = createElement("label", ["block","mb-1.5","text-sm","font-medium","text-gray-800"], "Image URL");
+  const imageUrlInput = createElement("input", [
+    "w-full","rounded-xl","border","border-gray-300","px-3","py-2.5","text-sm","bg-white",
+    "focus:border-gray-400","focus:ring-2","focus:ring-gray-200","transition"
+  ]);
+  imageUrlInput.type = "url";
+  imageUrlInput.placeholder = "https://example.com/avatar.jpg";
+  appendToParent(imageUrlDiv, [imageUrlLabel, imageUrlInput]);
+
+  const summary = createElement("div", ["flex","gap-2","flex-wrap"]);
+  const chip = (t)=> createElement("span", ["inline-flex","items-center","gap-1","rounded-full","bg-gray-100","px-3","py-1","text-xs","text-gray-700"], t);
   const refreshSummary = () => {
     summary.innerHTML = "";
-    const n = nativeSelect.value
-      ? `Native: ${nativeSelect.options[nativeSelect.selectedIndex].text}`
-      : "";
-    const l = learningSelect.value
-      ? `Learning: ${learningSelect.options[learningSelect.selectedIndex].text}`
-      : "";
+    const n = Number(nativeSelect.value) > 0 ? `Native: ${LANGS[Number(nativeSelect.value)]}` : "";
+    const l = Number(learningSelect.value) > 0 ? `Learning: ${LANGS[Number(learningSelect.value)]}` : "";
     if (n) summary.appendChild(chip(n));
     if (l) summary.appendChild(chip(l));
   };
-  nativeSelect.addEventListener("change", () => {
-    clearFieldError(nativeDiv, nativeSelect);
-    refreshSummary();
-  });
-  learningSelect.addEventListener("change", () => {
-    clearFieldError(learningDiv, learningSelect);
-    refreshSummary();
-  });
+  nativeSelect.addEventListener("change", ()=>{ clearFieldError(nativeDiv, nativeSelect); refreshSummary(); });
+  learningSelect.addEventListener("change", ()=>{ clearFieldError(learningDiv, learningSelect); refreshSummary(); });
+  imageUrlInput.addEventListener("input", ()=> clearFieldError(imageUrlDiv, imageUrlInput));
 
-  const tips = createElement("div", [
-    "rounded-xl",
-    "bg-gray-50",
-    "border",
-    "border-gray-200",
-    "p-4",
-    "text-xs",
-    "text-gray-600",
-  ]);
-  tips.innerHTML =
-    "<strong>Tip:</strong> You can change these later from Settings. Choose your native and the language you want to practice.";
+  const tips = createElement("div", ["rounded-xl","bg-gray-50","border","border-gray-200","p-4","text-xs","text-gray-600"]);
+  tips.innerHTML = "<strong>Tip:</strong> You can change these later from Settings. Choose your native and the language you want to practice.";
 
-  const saveBtn = createElement(
-    "button",
-    [
-      "w-full",
-      "rounded-2xl",
-      "bg-gray-900",
-      "px-4",
-      "py-3",
-      "text-sm",
-      "font-semibold",
-      "text-white",
-      "shadow-lg",
-      "transition",
-      "active:scale-[.99]",
-      "hover:bg-black",
-      "focus:outline-none",
-      "focus:ring-2",
-      "focus:ring-gray-300",
-      "flex",
-      "items-center",
-      "justify-center",
-      "gap-2",
-    ],
-    "Save"
-  );
+  const saveBtn = createElement("button", [
+    "w-full","rounded-2xl","bg-gray-900","px-4","py-3","text-sm","font-semibold","text-white",
+    "shadow-lg","transition","active:scale-[.99]","hover:bg-black","focus:outline-none","focus:ring-2","focus:ring-gray-300",
+    "flex","items-center","justify-center","gap-2"
+  ], "Save");
+
   const setLoading = (on) => {
     if (on) {
       saveBtn.disabled = true;
-      saveBtn.classList.add("opacity-80", "cursor-not-allowed");
-      saveBtn.innerHTML =
-        '<svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path></svg><span>Saving...</span>';
+      saveBtn.classList.add("opacity-80","cursor-not-allowed");
+      saveBtn.innerHTML = '<svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path></svg><span>Saving...</span>';
     } else {
       saveBtn.disabled = false;
-      saveBtn.classList.remove("opacity-80", "cursor-not-allowed");
+      saveBtn.classList.remove("opacity-80","cursor-not-allowed");
       saveBtn.textContent = "Save";
     }
   };
@@ -736,49 +549,66 @@ const createProfilePage = () => {
     e.preventDefault();
     hideAlert();
 
-    let hasErr = false;
-    if (!nativeSelect.value) {
-      setFieldError(nativeDiv, nativeSelect, "Please select your native language.");
-      hasErr = true;
-    }
-    if (!learningSelect.value) {
-      setFieldError(learningDiv, learningSelect, "Please select the language you are learning.");
-      hasErr = true;
-    }
-    if (nativeSelect.value && learningSelect.value && nativeSelect.value === learningSelect.value) {
-      setFieldError(learningDiv, learningSelect, "Learning language must be different from native.");
-      hasErr = true;
-    }
-    if (hasErr) {
-      showAlert("Please fix the highlighted fields.", "error");
-      return;
-    }
+    const errors = [];
+    const nativeIdx = Number(nativeSelect.value);
+    const learningIdx = Number(learningSelect.value);
+    const imageUrl = (imageUrlInput.value || "").trim();
+
+    const isValidUrl = (u)=>{ try { new URL(u); return true; } catch { return false; } };
+
+    if (!nativeIdx) { setFieldError(nativeDiv, nativeSelect); errors.push("Please select your native language."); }
+    if (!learningIdx) { setFieldError(learningDiv, learningSelect); errors.push("Please select the language you are learning."); }
+    if (nativeIdx && learningIdx && nativeIdx === learningIdx) { setFieldError(learningDiv, learningSelect); errors.push("Learning language must be different from native."); }
+    if (!imageUrl) { setFieldError(imageUrlDiv, imageUrlInput); errors.push("Image URL is required."); }
+    else if (!isValidUrl(imageUrl)) { setFieldError(imageUrlDiv, imageUrlInput); errors.push("Image URL must be a valid URL."); }
+
+    // ids الحقيقية من الخارطة الثابتة
+    const nativeId = ID_MAP[nativeIdx];
+    const learningId = ID_MAP[learningIdx];
+    if (nativeIdx && nativeId == null) errors.push(`Selected native language (“${LANGS[nativeIdx]}”) is not mapped to an ID.`);
+    if (learningIdx && learningId == null) errors.push(`Selected learning language (“${LANGS[learningIdx]}”) is not mapped to an ID.`);
+
+    if (errors.length) { showAlert(errors, "error"); return; }
 
     setLoading(true);
-
     try {
-      const profileData = {
-        image: previewImg.src,
-        nativeLanguage: nativeSelect.value,
-        learningLanguage: learningSelect.value,
-      };
-      localStorage.setItem("profile", JSON.stringify(profileData));
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/profile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          native_language_id: Number(nativeId),
+          learning_language_id: Number(learningId),
+          image: imageUrl
+        })
+      });
+
+      let data = null; try { data = await res.json(); } catch {}
+
+      if (!res.ok) {
+        const msg = data?.error || data?.message || `${res.status} ${res.statusText || "Request failed"}`;
+        showAlert(msg, "error");
+        return;
+      }
+
+      showAlert("Profile saved successfully!", "success");
+      try { if (data?.data) localStorage.setItem("profile", JSON.stringify(data.data)); } catch {}
       refreshSummary();
-      showAlert("Profile updated successfully!", "success");
     } catch {
-      showAlert("Something went wrong. Please try again.", "error");
+      showAlert("Network error. Please try again.", "error");
     } finally {
       setLoading(false);
     }
   });
 
-  appendToParent(form, [nativeDiv, learningDiv, summary, tips, saveBtn]);
-
-  appendToParent(container, [banner, avatarWrap, header, alertBox, form]);
+  appendToParent(form, [nativeDiv, learningDiv, imageUrlDiv, summary, tips, saveBtn]);
+  appendToParent(container, [banner, header, alertBox, form]);
   appendToParent(main, [blob1, blob2, container]);
   appendToParent(app, [main]);
 
   refreshSummary();
 };
-
 createLoginPage()
