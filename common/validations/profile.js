@@ -9,7 +9,7 @@ const profileSchema = Joi.object({
   learning_language_id: Joi.number()
     .integer()
     .valid(1, 2, 3, 4, 5, 6, 7)
-    .disallow(Joi.ref("native_language"))
+    .disallow(Joi.ref("native_language_id"))
     .required(),
 
   image: Joi.string()
