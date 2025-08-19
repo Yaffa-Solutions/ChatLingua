@@ -1,6 +1,5 @@
-// import { createElement, appendToParent, createDivForm } from './dom.js';
+import createHomePage from './home.js'
 
-// import {createProfilePage} from './Profile.js';
 const app = document.getElementById("app");
 
 export function  createLoginPage () {
@@ -181,7 +180,7 @@ export function  createLoginPage () {
       } catch {}
 
       didRedirect = true;
-      createProfilePage();
+      createHomePage();
     } catch {
       showAlert("Network error. Please check your connection and try again.", "error");
     } finally {
