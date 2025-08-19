@@ -16,11 +16,11 @@ router.get("/profile",authenticateToken ,getProfile);
 router.post("/profile",authenticateToken,postProfile);
 router.put("/profile",authenticateToken,putProfile)
 
-router.post('/chat',authenticateToken,addChatUser);
 
+router.post('/chat',authenticateToken,addChatUser);
 router.delete('/chat/:id',authenticateToken,deleteChatUser);
 router.post('/chat/message',authenticateToken,addMessageUser);
-router.get('/chat/profiles/:id',getProfilesByLanguage);
-router.get('/chat/messages/:chat_id',getMessagesByChat_id);
+router.get('/chat/profiles/:id',authenticateToken , getProfilesByLanguage);
+router.get('/chat/messages/:chat_id',authenticateToken,getMessagesByChat_id);
 
 module.exports = router;

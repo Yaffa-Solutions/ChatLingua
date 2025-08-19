@@ -20,6 +20,11 @@ const SignUp = (req, res ,next) => {
       return createToken(user);
     })
     .then(({token}) => {
+      
+      res.cookie('token',token,{
+         maxAge: 60 * 60 * 1000,
+      });
+      
       res.status(201).json({
         message: 'user registered successfully ',
         data: user,
