@@ -9,8 +9,8 @@
     "start": "node index.js",
     "db:build": "cross-env NODE_ENV=dev node src/database/migration/create-database.js",
     "secret": "node scripts/generate-secret.js",
-    "db:seed": "node database/migration/seed_data.js",
-     "test:prod":"cross-env NODE_ENV=test npm run db:build  && jest"
+    "db:seed": "node src/database/migration/seed-data.js",
+    "test:prod": "cross-env NODE_ENV=test npm run db:build  && jest"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
   "homepage": "https://github.com/Yaffa-Solutions/ChatLingua#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cross-env": "^10.0.0",
     "env": "^0.0.2",
     "env2": "^2.2.2",

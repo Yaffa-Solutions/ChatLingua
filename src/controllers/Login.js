@@ -27,6 +27,11 @@ const Login = (req, res, next) => {
       return createToken(rest);
     })
     .then(({payload,token}) => {
+
+      res.cookie('token',token,{
+         maxAge: 60 * 60 * 1000,
+      });
+      
       res.status(200).json({
         message: 'user logged in successfully ',
         data: payload,

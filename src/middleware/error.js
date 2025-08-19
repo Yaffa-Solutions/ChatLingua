@@ -6,7 +6,6 @@ class CustomError extends Error {
 }
 
 const errorHandler = (error, req, res, next) => {
-  console.log(error);
   res.status(error.status || 500).json({ error: error.message || "something went wrong"});
 };
 
