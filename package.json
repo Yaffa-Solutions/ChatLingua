@@ -10,7 +10,7 @@
     "db:build": "cross-env NODE_ENV=dev node src/database/migration/create-database.js",
     "secret": "node scripts/generate-secret.js",
     "db:seed": "node src/database/migration/seed-data.js",
-    "test:prod": "cross-env NODE_ENV=test npm run db:build  && jest"
+    "test:prod": "cross-env NODE_ENV=test npm run db:build && npm run db:seed  && jest"
   },
   "repository": {
     "type": "git",

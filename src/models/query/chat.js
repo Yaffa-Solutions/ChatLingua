@@ -3,7 +3,7 @@ const { CustomError } = require('../../middleware/error');
 
 const addChat = (name) => {
   return connection.query(`INSERT INTO chats(name) VALUES($1)RETURNING *`, [
-    name,
+    name || 'Chat'
   ]);
 };
 
