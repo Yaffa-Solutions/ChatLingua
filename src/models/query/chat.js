@@ -1,43 +1,32 @@
 const connection = require('../../database/connection');
 const { CustomError } = require('../../middleware/error');
 
-const addChat = (name) => {
-  return connection.query(`INSERT INTO chats(name) VALUES($1)RETURNING *`, [
-    name,
-  ]);
+const getAllChatsQuery = () => {
+  return connection.query(`SELECT  * FROM chats`);
 };
 
-const deleteChat = (id) => {
-  return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
+const getProfileByUserNameQuery = (username) => {
+  return connection.query(
+    `SELECT p.id, p.image, p.learning_language_id , p.native_language_id
+    FROM profiles p
+    INNER JOIN users u ON p.user_id = u.id
+    WHERE u.username = $1`,
+    [username]
+  );
 };
 
-const checkIfExistsChatId = ({chat_id , sender_id, receiver_id}) => {
-  return connection.query(`SELECT EXISTS(SELECT 1 FROM chats where id=$1) as chat_exist ,  exists(SELECT 1 from profiles where id=$2) as sender_exist , exists(SELECT 1 from profiles where  id=$3) as receiver_exist`, [
-    chat_id, sender_id, receiver_id
-  ]);
+
+const getAllChatsByProfileQuery = (profile_id) => {
+  return connection.query(
+    `SELECT name , cp.profile_id   
+    FROM chats c 
+    inner join chat_profiles cp 
+    on c.id=cp.chat_id
+    where profile_id=$1`,
+    [profile_id]
+  );
 };
-
-const addMessage = ({ chat_id, content, sender_id, receiver_id }) => {
-  return checkIfExistsChatId({chat_id,sender_id,receiver_id}).then((result) => {
-
-    const {chat_exist,sender_exist,receiver_exist}=result.rows[0];
-     if (!chat_exist) {
-      throw new CustomError(`Chat with id=${chat_id} not found`, 404);
-    }
-    if (!sender_exist) {
-      throw new CustomError(`Sender profile with id=${sender_id} not found`, 404);
-    }
-    if (!receiver_exist) {
-      throw new CustomError(`Receiver profile with id=${receiver_id} not found`, 404);
-    } 
-      return connection.query(
-        `INSERT INTO messages(chat_id, content, sender_id, receiver_id) 
-     VALUES($1,$2,$3,$4)RETURNING*`,
-        [chat_id, content, sender_id, receiver_id]
-      );
-  });
-};
-
+ 
 const getProfilesByLanguageId = (learning_language_id) => {
   return connection.query(
     `SELECT u.username  ,p.image , p.learning_language_id
@@ -48,15 +37,13 @@ const getProfilesByLanguageId = (learning_language_id) => {
 };
 
 const getMessages = (chat_id) => {
-
-
- return checkIfExistsChatId({chat_id}).then(({rows})=>{
-    if(!rows[0].chat_exist){
+  return checkIfExistsChatId({ chat_id }).then(({ rows }) => {
+    if (!rows[0].chat_exist) {
       throw new CustomError(`Chat with id=${chat_id} not found`, 404);
     }
 
-      return connection.query(
-    `select 
+    return connection.query(
+      `select 
      c.name as chat_name , 
      m.content ,
      m.created_at,
@@ -80,10 +67,67 @@ const getMessages = (chat_id) => {
      where m.chat_id=$1
      order by m.created_at asc 
      `,
-    [chat_id]
-  );
-  })
-
+      [chat_id]
+    );
+  });
 };
 
-module.exports = { addChat, addMessage, deleteChat, getProfilesByLanguageId, getMessages };
+
+const addChat_ProfileQuery=(chat_id,profile_id)=>{
+  return connection.query(`INSERT INTO chat_profiles(chat_id,profile_id) VALUES($1,$2) RETURNING* `,[chat_id,profile_id])
+}
+const addChat = (name) => {
+  return connection.query(`INSERT INTO chats(name) VALUES($1)RETURNING *`, [
+    name,
+  ]);
+};
+
+const deleteChat = (id) => {
+  return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
+};
+const checkIfExistsChatId = ({ chat_id, sender_id, receiver_id }) => {
+  return connection.query(
+    `SELECT EXISTS(SELECT 1 FROM chats where id=$1) as chat_exist ,  exists(SELECT 1 from profiles where id=$2) as sender_exist , exists(SELECT 1 from profiles where  id=$3) as receiver_exist`,
+    [chat_id, sender_id, receiver_id]
+  );
+};
+
+const addMessage = ({ chat_id, content, sender_id, receiver_id }) => {
+  return checkIfExistsChatId({ chat_id, sender_id, receiver_id }).then(
+    (result) => {
+      const { chat_exist, sender_exist, receiver_exist } = result.rows[0];
+      if (!chat_exist) {
+        throw new CustomError(`Chat with id=${chat_id} not found`, 404);
+      }
+      if (!sender_exist) {
+        throw new CustomError(
+          `Sender profile with id=${sender_id} not found`,
+          404
+        );
+      }
+      if (!receiver_exist) {
+        throw new CustomError(
+          `Receiver profile with id=${receiver_id} not found`,
+          404
+        );
+      }
+      return connection.query(
+        `INSERT INTO messages(chat_id, content, sender_id, receiver_id) 
+     VALUES($1,$2,$3,$4)RETURNING*`,
+        [chat_id, content, sender_id, receiver_id]
+      );
+    }
+  );
+};
+
+module.exports = {
+  addChat,
+  addMessage,
+  deleteChat,
+  getProfilesByLanguageId,
+  getMessages,
+  getAllChatsQuery,
+  getAllChatsByProfileQuery,
+  getProfileByUserNameQuery ,
+  addChat_ProfileQuery
+};

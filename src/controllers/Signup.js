@@ -32,6 +32,7 @@ const SignUp = (req, res ,next) => {
       });
     })
     .catch((err) => {
+      if (err.isJoi) { return next(new CustomError(`${err.details[0].message}`, 400)); }
       next(err);
     });
 
