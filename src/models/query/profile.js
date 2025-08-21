@@ -4,9 +4,12 @@ const { CustomError } = require("../../middleware/error");
 const getProfileByUserId = (user_id) => {
   return pool.query(
     `SELECT 
+    profiles.id,
     username,
     image,
     native_lang.name as native,
+    native_lang.id as native_id,
+    learning_lang.id as learn_id,
     learning_lang.name as learning
     FROM profiles 
     INNER JOIN users ON profiles.user_id=users.id 

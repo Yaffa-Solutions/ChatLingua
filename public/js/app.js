@@ -16,19 +16,13 @@ function render(view) {
       return createLoginPage();
   }
 }
-console.log("kkk")
 
-export function navigate(to = 'login') {
-  location.hash = `#/${to}`;
-  render(to);
-}
 
 function handleRoute() {
   const route = (location.hash.replace(/^#\//, '') || 'login');
   render(route);
 }
 
-window.navigate          = navigate;
 window.createLoginPage   = createLoginPage;
 window.createSignUpPage  = createSignUpPage;
 window.createProfilePage = createProfilePage;
