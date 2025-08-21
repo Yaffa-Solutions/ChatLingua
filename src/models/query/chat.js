@@ -9,6 +9,7 @@ const addChat = (name) => {
 
 const deleteChat = (id) => {
   return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
+}
 const getAllChatsQuery = () => {
   return connection.query(`SELECT  * FROM chats`);
 };
@@ -84,15 +85,7 @@ const getMessages = (chat_id) => {
 const addChat_ProfileQuery=(chat_id,profile_id)=>{
   return connection.query(`INSERT INTO chat_profiles(chat_id,profile_id) VALUES($1,$2) RETURNING* `,[chat_id,profile_id])
 }
-const addChat = (name) => {
-  return connection.query(`INSERT INTO chats(name) VALUES($1)RETURNING *`, [
-    name,
-  ]);
-};
 
-const deleteChat = (id) => {
-  return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
-};
 const checkIfExistsChatId = ({ chat_id, sender_id, receiver_id }) => {
   return connection.query(
     `SELECT EXISTS(SELECT 1 FROM chats where id=$1) as chat_exist ,  exists(SELECT 1 from profiles where id=$2) as sender_exist , exists(SELECT 1 from profiles where  id=$3) as receiver_exist`,
