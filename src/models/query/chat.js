@@ -1,6 +1,14 @@
 const connection = require('../../database/connection');
 const { CustomError } = require('../../middleware/error');
 
+const addChat = (name) => {
+  return connection.query(`INSERT INTO chats(name) VALUES($1)RETURNING *`, [
+    name || 'Chat'
+  ]);
+};
+
+const deleteChat = (id) => {
+  return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
 const getAllChatsQuery = () => {
   return connection.query(`SELECT  * FROM chats`);
 };
@@ -31,7 +39,7 @@ const getProfilesByLanguageId = (learning_language_id) => {
   return connection.query(
     `SELECT u.username  ,p.image , p.learning_language_id
      FROM profiles p inner join users u 
-     on p.user_id =u.id WHERE learning_language_id=$1`,
+     on p.user_id =u.id WHERE native_language_id=$1`,
     [learning_language_id]
   );
 };
