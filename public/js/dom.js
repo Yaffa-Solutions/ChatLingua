@@ -38,7 +38,7 @@ const createDivForm = (name) => {
     "pr-12",
   ]);
 
-  if (name == "Password") {
+  if (name == "Password"||name=="Confirm Password") {
     input.type = "password";
   } else {
     input.type = "text";
