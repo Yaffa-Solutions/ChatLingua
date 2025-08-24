@@ -34,7 +34,8 @@ CREATE TABLE chats(
 CREATE TABLE chat_profiles(
     id SERIAL PRIMARY KEY,  
     profile_id INTEGER REFERENCES profiles(id) ON DELETE CASCADE, 
-    chat_id INTEGER REFERENCES chats(id) ON DELETE CASCADE
+    chat_id INTEGER REFERENCES chats(id) ON DELETE CASCADE  , 
+    CONSTRAINT uq_profile_chat UNIQUE(profile_id,chat_id)
 );
 
 CREATE TABLE messages(

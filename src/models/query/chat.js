@@ -1,11 +1,10 @@
 const connection = require('../../database/connection');
 const { CustomError } = require('../../middleware/error');
 
-const addChat = (name) => {
-  return connection.query(`INSERT INTO chats(name) VALUES($1)RETURNING *`, [
-    name || 'Chat'
-  ]);
-};
+
+const openChat =(sender_id , receiver_id)=>{
+  return connection.query(`SELECT chat_id FROM chat_profiles where profile_id in ($1,$2) group by chat_id having count(distinct profile_id)=2`)
+}
 
 const deleteChat = (id) => {
   return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
@@ -23,7 +22,6 @@ const getProfileByUserNameQuery = (username) => {
     [username]
   );
 };
-
 
 const getAllChatsByProfileQuery = (profile_id) => {
   return connection.query(
@@ -81,10 +79,35 @@ const getMessages = (chat_id) => {
   });
 };
 
+const addChat_ProfileQuery=({name,profile_id,receiver_id})=>{
+ 
+  return connection.query(`SELECT chat_id FROM chat_profiles 
+    where profile_id in ($1,$2) group by chat_id having count(distinct profile_id)=2`
+    ,[profile_id,receiver_id]).then(({rows,rowCount})=>{
+      
+      if(receiver_id== profile_id){
+       throw new CustomError('you cant add chat to your self',400);
+      }
 
-const addChat_ProfileQuery=(chat_id,profile_id)=>{
-  return connection.query(`INSERT INTO chat_profiles(chat_id,profile_id) VALUES($1,$2) RETURNING* `,[chat_id,profile_id])
+      if(!rowCount && receiver_id !=profile_id){        
+        return connection.query(`INSERT INTO chats(name) VALUES($1) RETURNING* `,[name ||'My Chat'])
+      } else{
+        return {rows, existing:true};
+      }
+  }).then((result)=>{
+    if(result.existing){
+      return result;
+    }
+
+  return connection.query(`INSERT INTO chat_profiles(chat_id,profile_id)
+     VALUES($1,$2),($1,$3) RETURNING*`,[result.rows[0].id,profile_id,receiver_id])
+    //  .then(({ rows }) => ({ chat_id: result.rows[0].chat_id }));
+
+})
 }
+// const addChat_ProfileQuery=(chat_id,profile_id)=>{
+//   return connection.query(`INSERT INTO chat_profiles(chat_id,profile_id) VALUES($1,$2) RETURNING* `,[chat_id,profile_id])
+// }
 
 const checkIfExistsChatId = ({ chat_id, sender_id, receiver_id }) => {
   return connection.query(
@@ -122,7 +145,6 @@ const addMessage = ({ chat_id, content, sender_id, receiver_id }) => {
 };
 
 module.exports = {
-  addChat,
   addMessage,
   deleteChat,
   getProfilesByLanguageId,
@@ -130,5 +152,5 @@ module.exports = {
   getAllChatsQuery,
   getAllChatsByProfileQuery,
   getProfileByUserNameQuery ,
-  addChat_ProfileQuery
+  addChat_ProfileQuery 
 };
