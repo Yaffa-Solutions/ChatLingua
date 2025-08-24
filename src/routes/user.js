@@ -1,13 +1,13 @@
 
 const express = require('express');
 const {Login} = require('../controllers/Login');
-const { SignUp } = require('../controllers/signup');
+const { SignUp } = require('../controllers/Signup');
 const { getProfile } = require("../controllers/profile");
 const { postProfile } = require("../controllers/profile");
 const { putProfile } = require("../controllers/profile");
 const { getTranslate }=require('../controllers/Translate')
 const { authenticateToken } = require('../middleware/auth');
-const { addChatUser, deleteChatUser, addMessageUser, getProfilesByLanguage, getMessagesByChat_id, getAllChatsByProfile, getAllChats, getProfileByUserName, addChat_Profile } = require('../controllers/Chat');
+const { addChatUser, deleteChatUser, addMessageUser, getProfilesByLanguage, getMessagesByChat_id, getAllChatsByProfile, getAllChats, getProfileByUserName, addChat_Profile, addChat_Profile_training_controller } = require('../controllers/Chat');
 const router = express.Router();
 
 router.post('/login',Login);
@@ -17,7 +17,7 @@ router.get("/profile",authenticateToken ,getProfile);
 router.post("/profile",authenticateToken,postProfile);
 router.put("/profile",authenticateToken,putProfile)
 
-router.get('/translate',getTranslate)
+router.post('/translate',getTranslate)
 
 router.post('/chat',authenticateToken,addChatUser);
 router.delete('/chat/:id',authenticateToken,deleteChatUser);
@@ -27,5 +27,5 @@ router.get('/chat/messages/:chat_id',authenticateToken,getMessagesByChat_id);
 router.get('/chat/:profile_id',authenticateToken,getAllChatsByProfile);
 router.get('/chats',authenticateToken,getAllChats);
 router.get('/profiles/:username',authenticateToken,getProfileByUserName);
-router.post('/chatProfiles',authenticateToken , addChat_Profile);
+//router.post('/chatProfiles',authenticateToken , addChat_Profile);
 module.exports = router;

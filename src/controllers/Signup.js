@@ -1,4 +1,5 @@
 const addUser = require('../models/query/signup');
+const { CustomError } = require('../middleware/error');
 
 const { userLoginSchema } = require('../../common/validations/userLogin');
 const { hashPassword } = require('../../common/hashPassword');
@@ -32,7 +33,7 @@ const SignUp = (req, res ,next) => {
       });
     })
     .catch((err) => {
-      if (err.isJoi) { return next(new CustomError(`${err.details[0].message}`, 400)); }
+      if (err.isJoi) { return next(new CustomError (`${err.details[0].message}`, 400)); }
       next(err);
     });
 

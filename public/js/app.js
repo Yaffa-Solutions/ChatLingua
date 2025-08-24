@@ -2,6 +2,7 @@
 import { createLoginPage }   from './login.js';  
 import { createSignUpPage }  from './signup.js';  
 import { createProfilePage } from './Profile.js';
+import {createHomePage} from './home.js';
 
 window.app = document.getElementById('app');
 
@@ -11,6 +12,8 @@ function render(view) {
       return createSignUpPage();
     case 'profile':
       return createProfilePage();
+    case 'home':
+      return createHomePage()
     case 'login':
     default:
       return createLoginPage();
@@ -19,7 +22,12 @@ function render(view) {
 
 
 function handleRoute() {
-  const route = (location.hash.replace(/^#\//, '') || 'login');
+  let route = (location.hash.replace(/^#\//, '') || 'login');
+  const token =document.cookie.split('=')[1];
+  if(token){
+    route='home'
+  }
+
   render(route);
 }
 
