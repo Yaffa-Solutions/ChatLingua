@@ -140,13 +140,12 @@ export function createHomePage() {
     "to-white",
     "text-center",
   ]);
-  const mainImg = createElement("img", ["w-1/2", "rounded-lg", "shadow-lg"]);
   const mainText = createElement(
     "p",
     ["mt-4", "text-xl", "font-semibold", "text-gray-700"],
     "Start Learning Language by make conversation by people!"
   );
-  appendToParent(main, [mainImg, mainText]);
+  appendToParent(main, [mainText]);
 
   appendToParent(app, [sidebar, main]);
 }
@@ -326,26 +325,126 @@ function openMessageWindow(username, chatId, chatName) {
     .then((res) => res.json())
     .then(({ data: { messages } }) => {
       console.log(messages);
-      messages.forEach((m) => renderMessage(m.content, m.sender_id,m.id));
+      messages.forEach((m) => renderMessage(m.content, m.sender_id, m.id));
     });
   let receiverUserName = username;
   // Clear main content
   main.innerHTML = "";
 
   // Chat header
-  const chatHeader = createElement(
-    "div",
-    [
-      "p-3",
-      "border-b",
-      "font-bold",
-      "text-lg",
-      "text-left",
-      "bg-white",
-      "w-full",
-    ],
-    chatName
+  const chatHeader = createElement("div", [
+    "relative",
+    "p-3",
+    "border-b",
+    "text-lg",
+    "text-left",
+    "bg-white",
+    "w-full",
+    "flex",
+    "items-center",
+    "justify-between",
+  ]);
+
+  const chatTitle = createElement("span", ["font-bold"], chatName);
+
+  const headerMenuIcon = createElement(
+    "span",
+    ["relative", "cursor-pointer", "text-xl", "select-none"],
+    "⋮"
   );
+
+  const headerDropdown = createElement("div", [
+    "absolute",
+    "left-[-150px]",
+    "top-full",
+    "mt-1",
+    "w-40",
+    "bg-white",
+    "rounded-md",
+    "shadow-lg",
+    "text-sm",
+    "z-10",
+  ]);
+  headerDropdown.style.display = "none";
+
+  const editChatOption = createElement(
+    "div",
+    ["px-3", "py-2", "cursor-pointer", "hover:bg-gray-100"],
+    "Edit Chat Name"
+  );
+  const deleteChatOption = createElement(
+    "div",
+    ["px-3", "py-2", "cursor-pointer", "hover:bg-gray-100"],
+    "Delete Chat"
+  );
+
+  appendToParent(headerDropdown, [editChatOption, deleteChatOption]);
+  appendToParent(chatHeader, [chatTitle, headerMenuIcon]);
+  headerMenuIcon.appendChild(headerDropdown);
+
+  let isOpen = false;
+  headerMenuIcon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    isOpen = !isOpen;
+    headerDropdown.style.display = isOpen ? "block" : "none";
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!headerMenuIcon.contains(e.target)) {
+      headerDropdown.style.display = "none";
+      isOpen = false;
+    }
+  });
+
+  deleteChatOption.addEventListener("click", () => {
+    Swal.fire({
+      title: "Are you sure?",
+      html: `
+      <div class="text-center mx-auto">
+        <p>Do you want to delete this chat?</p>
+        <label style="display: flex; align-items: center; gap: 5px; margin-top: 10px;"></label>
+        <input type="checkbox" id="deleteForOther">
+          Delete for the other person too
+      </div>
+    `,
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      preConfirm: () => {
+        const checkbox = Swal.getPopup().querySelector("#deleteForOther");
+        return checkbox.checked;
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const deleteForOther = result.value;
+        if (deleteForOther) {
+          fetch(`/chat/${chatId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              socket.emit("deleteChat", { chat_id: chatId });
+              console.log(data);
+              Swal.fire("Deleted!", "Chat has been deleted.", "success");
+            })
+            .catch((err) => {
+              Swal.fire("Error!", "Something went wrong.", "error");
+            });
+        }
+      }
+    });
+  });
+
+  socket.on("chatDeleted", ({ chat_id }) => {
+    main.innerHTML = "";
+    const mainText = createElement(
+      "p",
+      ["mt-4", "text-xl", "font-semibold", "text-gray-700"],
+      "Start Learning Language by make conversation by people!"
+    );
+    appendToParent(main, [mainText]);
+  });
 
   // Messages container (fills available space)
   let messagesContainer = createElement("div", [
@@ -466,7 +565,7 @@ function openMessageWindow(username, chatId, chatName) {
 
     const dropdown = createElement("div", [
       "absolute",
-      "left-0",
+      sender_id == profileId ? "left-[-30px]" : "left-0",
       "top-full",
       "mt-1",
       "w-28",
@@ -534,8 +633,6 @@ function openMessageWindow(username, chatId, chatName) {
 
     deleteOption.onclick = () => {
       const id = msgEl.getAttribute("data-id");
-
-      msgWrapper.remove();
       if (openDropdown === dropdown) openDropdown = null;
 
       fetch(`/message/${id}`, {
@@ -543,12 +640,22 @@ function openMessageWindow(username, chatId, chatName) {
         headers: { "Content-Type": "application/json" },
       })
         .then((res) => res.json())
-        .then((result) => {})
+        .then((result) => {
+          socket.emit("removeMessage", { messageId: id, chat_id: chatId });
+        })
         .catch((err) => {
           console.error(err);
         });
     };
 
+    socket.on("removedMessage", ({ messageId }) => {
+      console.log(messageId);
+      const msgToRemove = document.querySelector(`[data-id="${messageId}"]`);
+      if (msgToRemove) {
+        msgToRemove.parentElement.parentElement.remove();
+        console.log("Message removed:", messageId);
+      }
+    });
     msgWrapper.appendChild(msgContainer);
     messagesContainer.appendChild(msgWrapper);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
