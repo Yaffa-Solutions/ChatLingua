@@ -2,13 +2,7 @@ const connection = require('../../database/connection');
 const { CustomError } = require('../../middleware/error');
 
 
-const openChat =(sender_id , receiver_id)=>{
-  return connection.query(`SELECT chat_id FROM chat_profiles where profile_id in ($1,$2) group by chat_id having count(distinct profile_id)=2`)
-}
 
-const deleteChat = (id) => {
-  return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
-}
 const getAllChatsQuery = () => {
   return connection.query(`SELECT  * FROM chats`);
 };
@@ -144,7 +138,17 @@ const addMessage = ({ chat_id, content, sender_id, receiver_id }) => {
   );
 };
 
+const editChatNameQuery = (id,name)=>{
+  return connection.query(`update chats set name=$1 where id=$2 RETURNING*`,[name,id]);
+}
 
+const deleteChatProfileQuery=(chat_id , profile_id)=>{
+  return connection.query(`delete from chat_profiles where chat_id=$1 and profile_id=$2 RETURNING*`,[chat_id,profile_id]);
+}
+
+const deleteChat = (id) => {
+  return connection.query(`DELETE FROM chats WHERE id=$1 RETURNING*`, [id]);
+}
 const  deleteMessageQuery=(id)=>{
   return connection.query(`DELETE FROM messages WHERE id=$1 RETURNING*`,[id]);
 }
@@ -157,5 +161,7 @@ module.exports = {
   getAllChatsByProfileQuery,
   getProfileByUserNameQuery ,
   addChat_ProfileQuery ,
-  deleteMessageQuery
+  deleteMessageQuery , 
+  editChatNameQuery , 
+  deleteChatProfileQuery
 };

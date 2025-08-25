@@ -10,6 +10,8 @@ const {
   addChat_ProfileQuery,
   getProfileByUserNameQuery,
   deleteMessageQuery,
+  editChatNameQuery,
+  deleteChatProfileQuery,
 } = require('../models/query/chat');
 const { getProfileByUserId } = require('../models/query/profile');
 
@@ -225,12 +227,26 @@ const addChatUser = (req, res, next) => {
     });
 };
 
+
+const editChatName=({body:{name},params:{id}},res,next)=>{
+  editChatNameQuery(id,name)
+  .then(({rows})=>{
+    res.status(201).json({message:'updated chat name successfully' , status:201 , data:rows});
+  }).catch((err)=>next(err));
+}
 const deleteMessage=({params:{id}},res,next)=>{
   deleteMessageQuery(id).then(({rows})=>{
     res.status(201).json({message:'delete message is successfully',data:rows,status:201});
   }).catch((err)=>{
     next(err);
   });
+}
+
+
+const deleteChatProfiles=({body:{chat_id , profile_id}},res , next)=>{
+  deleteChatProfileQuery(chat_id , profile_id).then(({rows})=>{
+    res.status(204).json({message:'deleted chat_profile',data:rows});
+  }).catch((err)=>next(err));
 }
 module.exports = {
   addChatUser,
@@ -241,5 +257,7 @@ module.exports = {
   getAllChats,
   getAllChatsByProfile,
   getProfileByUserName,
-  deleteMessage
+  deleteMessage , 
+  editChatName , 
+  deleteChatProfiles
 };
