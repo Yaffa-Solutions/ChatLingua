@@ -51,11 +51,12 @@ const getMessages = (chat_id) => {
 
     return connection.query(
       `select 
-     c.name as chat_name , 
+     c.name as chat_name ,
+     m.id, 
      m.content ,
      m.created_at,
-     su.id as sender_id ,
-     ru.id as receiver_id ,
+     sender.id as sender_id ,
+     receiver.id as receiver_id ,
      su.username as sender_username , 
      sender.image as sender_image,
      ru.username as receiver_username,
