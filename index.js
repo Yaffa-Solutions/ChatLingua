@@ -20,8 +20,8 @@ io.on('connection',(socket)=>{
        });
     })
     
-    socket.on('sendMessage',({chat_id,content,sender_id,receiver_id})=>{
-      io.to(chat_id).emit('receiveMessage',{chat_id,content,sender_id,receiver_id});
+    socket.on('sendMessage',({messageId,chat_id,content,sender_id,receiver_id})=>{
+      io.to(chat_id).emit('receiveMessage',{messageId,chat_id,content,sender_id,receiver_id});
     })
 
     socket.on('typing',(username,chat_id)=>{
