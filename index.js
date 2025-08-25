@@ -24,6 +24,14 @@ io.on('connection',(socket)=>{
       io.to(chat_id).emit('receiveMessage',{messageId,chat_id,content,sender_id,receiver_id});
     })
 
+    socket.on('removeMessage',({messageId,chat_id})=>{
+      io.to(chat_id).emit('removedMessage',{messageId})
+    })
+
+    socket.on('deleteChat',({chat_id})=>{
+      io.to(chat_id).emit('chatDeleted',{chat_id})
+    })
+
     socket.on('typing',(username,chat_id)=>{
       socket.to(chat_id).emit('userTyping',{
         username
