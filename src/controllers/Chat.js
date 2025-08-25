@@ -9,6 +9,7 @@ const {
   getAllChatsByProfileQuery,
   addChat_ProfileQuery,
   getProfileByUserNameQuery,
+  deleteMessageQuery,
 } = require('../models/query/chat');
 const { getProfileByUserId } = require('../models/query/profile');
 
@@ -198,7 +199,6 @@ const deleteChatUser = (req, res, next) => {
     });
 };
 
-///error handle when add chat to yourself , and handle somethings error
 const addChatUser = (req, res, next) => {
   const { name, username } = req.body;
   const user=req.user;
@@ -225,6 +225,13 @@ const addChatUser = (req, res, next) => {
     });
 };
 
+const deleteMessage=({params:{id}},res,next)=>{
+  deleteMessageQuery(id).then(({rows})=>{
+    res.status(201).json({message:'delete message is successfully',data:rows,status:201});
+  }).catch((err)=>{
+    next(err);
+  });
+}
 module.exports = {
   addChatUser,
   deleteChatUser,
@@ -234,4 +241,5 @@ module.exports = {
   getAllChats,
   getAllChatsByProfile,
   getProfileByUserName,
+  deleteMessage
 };

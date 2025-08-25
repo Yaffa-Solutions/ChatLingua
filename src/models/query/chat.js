@@ -144,6 +144,10 @@ const addMessage = ({ chat_id, content, sender_id, receiver_id }) => {
   );
 };
 
+
+const  deleteMessageQuery=(id)=>{
+  return connection.query(`DELETE FROM messages WHERE id=$1 RETURNING*`,[id]);
+}
 module.exports = {
   addMessage,
   deleteChat,
@@ -152,5 +156,6 @@ module.exports = {
   getAllChatsQuery,
   getAllChatsByProfileQuery,
   getProfileByUserNameQuery ,
-  addChat_ProfileQuery 
+  addChat_ProfileQuery ,
+  deleteMessageQuery
 };

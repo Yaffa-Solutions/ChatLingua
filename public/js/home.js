@@ -322,7 +322,6 @@ const openProfileModal = (profile) => {
   app.appendChild(overlay);
 };
 
-
 function openMessageWindow(username, chatId, chatName) {
   let receiverUserName = username;
   // Clear main content
@@ -363,9 +362,14 @@ function openMessageWindow(username, chatId, chatName) {
     'w-full',
   ]);
 
-let pTyping = createElement('p', ['mt-auto','text-gray-500','italic','text-left']); 
+  let pTyping = createElement('p', [
+    'mt-auto',
+    'text-gray-500',
+    'italic',
+    'text-left',
+  ]);
 
-let chatInput = createElement('input', [
+  let chatInput = createElement('input', [
     'flex-1',
     'border',
     'p-2',
@@ -374,17 +378,17 @@ let chatInput = createElement('input', [
   chatInput.placeholder = 'Type a message...';
 
   let typingTime;
-  socket.off('userTyping').on('userTyping',({username})=>{
-      clearTimeout(typingTime);
-       typingTime= setTimeout(() => {
-        pTyping.textContent='';
-      }, 1000);
-      pTyping.textContent=`${username} is Typing`;
-    });
+  socket.off('userTyping').on('userTyping', ({ username }) => {
+    clearTimeout(typingTime);
+    typingTime = setTimeout(() => {
+      pTyping.textContent = '';
+    }, 1000);
+    pTyping.textContent = `${username} is Typing`;
+  });
 
-  chatInput.addEventListener('input',()=>{
-    socket.emit('typing',profileUserName,chatId);
-  })
+  chatInput.addEventListener('input', () => {
+    socket.emit('typing', profileUserName, chatId);
+  });
   let sendBtn = createElement(
     'button',
     ['bg-blue-500', 'text-white', 'px-4', 'rounded'],
@@ -392,15 +396,22 @@ let chatInput = createElement('input', [
   );
   inputWrapper.append(chatInput, sendBtn);
 
-  appendToParent(main, [chatHeader, messagesContainer, pTyping,inputWrapper]);
-
-  const renderMessage = (content, sender_id) => {
+  appendToParent(main, [chatHeader, messagesContainer, pTyping, inputWrapper]);
+  let openDropdown = null;
+  const renderMessage = (content, sender_id, messageId = 0) => {
     const msgWrapper = createElement('div', [
       'flex',
       'flex-col',
       'w-full',
       'mb-2',
       sender_id == profileId ? 'items-end' : 'items-start',
+    ]);
+
+    const msgContainer = createElement('div', [
+      'relative',
+      'flex',
+      'flex-col',
+      'max-w-xs',
     ]);
 
     const msgEl = createElement(
@@ -415,43 +426,127 @@ let chatInput = createElement('input', [
       ],
       content
     );
+       msgEl.setAttribute('data-id',messageId);
 
-    const translateLink = createElement(
-      'a',
-      ['text-xs', 'text-blue-600', 'mt-1', 'hover:underline', 'cursor-pointer'],
-      'Translate'
+    msgContainer.appendChild(msgEl);
+
+    const menuIcon = createElement(
+      'span',
+      [
+        'absolute',
+        sender_id == profileId ? 'left-[-25px]' : 'right-[-25px]',
+        'top-1/2',
+        '-translate-y-1/2',
+        'cursor-pointer',
+        'text-gray-400',
+        'hover:text-blue-400',
+        'text-lg',
+        'select-none',
+        'opacity-0',
+        'transition-opacity',
+        'duration-200',
+      ],
+      '⋮'
     );
 
-    let isTranslated = false;
+    msgWrapper.addEventListener('mouseenter', () => {
+      menuIcon.style.opacity = '1';
+    });
+    msgWrapper.addEventListener('mouseleave', () => {
+      menuIcon.style.opacity = '0';
+    });
 
-    translateLink.onclick = () => {
+    msgContainer.appendChild(menuIcon);
+
+    const dropdown = createElement('div', [
+      'absolute',
+      'left-0',
+      'top-full',
+      'mt-1',
+      'w-28',
+      'bg-white',
+      'rounded-md',
+      'shadow-lg',
+      'text-sm',
+      'z-10',
+    ]);
+    dropdown.style.display = 'none';
+
+    const translateOption = createElement(
+      'div',
+      ['px-3', 'py-2', 'hover:bg-gray-100', 'cursor-pointer'],
+      'Translate'
+    );
+    const deleteOption = createElement(
+      'div',
+      ['px-3', 'py-2', 'hover:bg-gray-100', 'cursor-pointer'],
+      'Delete'
+    );
+
+
+    dropdown.appendChild(translateOption);
+    dropdown.appendChild(deleteOption);
+    msgContainer.appendChild(dropdown);
+
+    menuIcon.onclick = (e) => {
+      e.stopPropagation();
+      if (openDropdown && openDropdown !== dropdown) {
+        openDropdown.style.display = 'none';
+      }
+      dropdown.style.display =
+        dropdown.style.display === 'block' ? 'none' : 'block';
+      openDropdown = dropdown.style.display === 'block' ? dropdown : null;
+    };
+    document.addEventListener('click', (e) => {
+      if (openDropdown) {
+        if (!openDropdown.contains(e.target) && !menuIcon.contains(e.target)) {
+          openDropdown.style.display = 'none';
+          openDropdown = null;
+        }
+      }
+    });
+    let isTranslated = false;
+    translateOption.onclick = () => {
       if (!isTranslated) {
         fetch('/translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            content,
-            native_language,
-          }),
+          body: JSON.stringify({ content, native_language }),
         })
           .then((res) => res.json())
           .then(({ data }) => {
-            console.log(data);
             msgEl.textContent = data;
-            translateLink.textContent = 'Original';
+            translateOption.textContent = 'Original';
             isTranslated = true;
           })
           .catch((err) => console.log(err));
       } else {
-        isTranslated = false;
         msgEl.textContent = content;
-        translateLink.textContent = 'Translate';
+        translateOption.textContent = 'Translate';
+        isTranslated = false;
       }
     };
 
-    msgWrapper.appendChild(msgEl);
-    msgWrapper.appendChild(translateLink);
+    deleteOption.onclick = () => {
+      const id = msgEl.getAttribute('data-id');
 
+      msgWrapper.remove();
+      if (openDropdown === dropdown) openDropdown = null;
+
+      fetch(`/message/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then((res) => res.json())
+        .then((result) => {
+     
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+
+    msgWrapper.appendChild(msgContainer);
     messagesContainer.appendChild(msgWrapper);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   };
@@ -462,9 +557,9 @@ let chatInput = createElement('input', [
   // Receive messages
   socket
     .off('receiveMessage')
-    .on('receiveMessage', ({ chat_id, content, sender_id }) => {
+    .on('receiveMessage', ({ messageId, chat_id, content, sender_id }) => {
       if (chatId !== chat_id) return;
-      renderMessage(content, sender_id);
+      renderMessage(content, sender_id, messageId);
     });
 
   // Notify when new user joins
@@ -486,11 +581,9 @@ let chatInput = createElement('input', [
       .then((res) => res.json())
       .then(({ data: { messages } }) => {
         console.log(messages);
-        messages.forEach((m)=>renderMessage(m.content,m.sender_id))
+        messages.forEach((m) => renderMessage(m.content, m.sender_id));
       });
-  
   });
-
 
   // Send message
   sendBtn.onclick = () => {
@@ -514,9 +607,10 @@ let chatInput = createElement('input', [
         });
       })
       .then((result) => result.json())
-      .then((data) => {
-        console.log(data);
+      .then(({ data: { messages } }) => {
+         console.log(messages.id);
         socket.emit('sendMessage', {
+          messageId: messages.id,
           chat_id: chatId,
           content: msg,
           sender_id: profileId,
@@ -529,11 +623,6 @@ let chatInput = createElement('input', [
       });
   };
 }
-
-
-
-
-
 
 function showErrorAlert(errors = []) {
   if (!errors.length) return null;
