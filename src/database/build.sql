@@ -34,9 +34,20 @@ CREATE TABLE chats(
 CREATE TABLE chat_profiles(
     id SERIAL PRIMARY KEY,  
     profile_id INTEGER REFERENCES profiles(id) ON DELETE CASCADE, 
-    chat_id INTEGER REFERENCES chats(id) ON DELETE CASCADE  , 
+    chat_id INTEGER REFERENCES chats(id) ON DELETE CASCADE  ,
+    deleted_by boolean DEFAULT 0,
     CONSTRAINT uq_profile_chat UNIQUE(profile_id,chat_id)
 );
+
+
+
+alter table chat_profiles 
+add column deleted_by boolean DEFAULT false ;
+
+
+alter table chat_profiles 
+add column deleted_at TIMESTAMPTZ  NULL;
+
 
 CREATE TABLE messages(
     id SERIAL PRIMARY KEY,  

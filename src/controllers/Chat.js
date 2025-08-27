@@ -11,7 +11,9 @@ const {
   getProfileByUserNameQuery,
   deleteMessageQuery,
   editChatNameQuery,
-  deleteChatProfileQuery,
+  deleteChatForProfileQuery,
+  checkIsDeletedChatQuery,
+  restoreDeletedStatus,
 } = require('../models/query/chat');
 const { getProfileByUserId } = require('../models/query/profile');
 
@@ -96,18 +98,19 @@ const getProfilesByLanguage = ({ params }, res, next) => {
     });
 };
 
-const getMessagesByChat_id = ({ params }, res, next) => {
-  const chatId = params.chat_id;
+const getMessagesByChat_id = (req, res, next) => {
+  const {chat_id,profile_id} = req.query;
+  console.log({chat_id,profile_id})
   idSchema
-    .validateAsync({ id: chatId })
+    .validateAsync({ id: chat_id })
     .then(({ id }) => {
-      return getMessages(id);
+      return getMessages(id,profile_id);
     })
     .then(({ rows }) => {
       res.status(200).json({
-        message: `these is all messages for this chat ${chatId}`,
+        message: `these is all messages for this chat ${chat_id}`,
         status: 200,
-        data: { chatId: chatId, messages: rows },
+        data: { chatId: chat_id, messages: rows },
       });
     })
     .catch((err) => {
@@ -234,6 +237,31 @@ const editChatName=({body:{name},params:{id}},res,next)=>{
     res.status(201).json({message:'updated chat name successfully' , status:201 , data:rows});
   }).catch((err)=>next(err));
 }
+
+
+
+const checkIsDeletedChat=(req,res,next)=>{
+  const {chat_id,profile_id}=req.query;
+  if(!chat_id || !profile_id){
+    res.status(400).json({message:'Invalid Data For this  chat_id , profile_id'});
+  }
+  checkIsDeletedChatQuery(chat_id,profile_id).then(({rows})=>{
+    res.status(200).json({message:'this check for chat_profile',data:rows});
+  }).catch((err)=> next(err));
+}
+
+
+const restoreDeletedChat=(req,res,next)=>{
+  const {chat_id,profile_id}=req.query;
+  if(!chat_id || !profile_id){
+    res.status(400).json({message:'Invalid Data For this  chat_id , profile_id'});
+  }
+  restoreDeletedStatus(chat_id,profile_id).then(({rows})=>{
+    res.status(200).json({message:'restore deleted status successfully',data:rows});
+  }).catch((err)=> next(err));
+}
+
+
 const deleteMessage=({params:{id}},res,next)=>{
   deleteMessageQuery(id).then(({rows})=>{
     res.status(201).json({message:'delete message is successfully',data:rows,status:201});
@@ -243,11 +271,14 @@ const deleteMessage=({params:{id}},res,next)=>{
 }
 
 
-const deleteChatProfiles=({body:{chat_id , profile_id}},res , next)=>{
-  deleteChatProfileQuery(chat_id , profile_id).then(({rows})=>{
-    res.status(204).json({message:'deleted chat_profile',data:rows});
+const deleteChatForProfile=({body:{chat_id , profile_id}},res , next)=>{
+  deleteChatForProfileQuery(chat_id , profile_id).then(({rows})=>{
+    res.status(200).json({message:`deleted chat for this profile ${profile_id}`,data:rows});
   }).catch((err)=>next(err));
 }
+
+
+
 module.exports = {
   addChatUser,
   deleteChatUser,
@@ -259,5 +290,7 @@ module.exports = {
   getProfileByUserName,
   deleteMessage , 
   editChatName , 
-  deleteChatProfiles
+  deleteChatForProfile  , 
+  checkIsDeletedChat , 
+  restoreDeletedChat
 };
