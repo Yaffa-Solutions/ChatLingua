@@ -1,5 +1,6 @@
-const connection = require('../../database/connection');
-const { CustomError } = require('../../middleware/error');
+const { message } = require("../../../common/validations/profile");
+const connection = require("../../database/connection");
+const { CustomError } = require("../../middleware/error");
 
 const getAllChatsQuery = () => {
   return connection.query(`SELECT  * FROM chats`);
@@ -35,7 +36,24 @@ const getProfilesByLanguageId = (learning_language_id) => {
   );
 };
 
-const getMessages = (chat_id , profile_id) => {
+const deleteMessageForQuery = (profile_id, message_id) => {
+  //need checks
+  return connection.query(
+    `Update messages
+  SET deleted_for = array_append(COALESCE(deleted_for, '{}')::integer[], $1::integer)
+  where id=$2 RETURNING*`,
+    [profile_id, message_id]
+  );
+};
+
+// const deleteMessageForQuery=(message_id)=>{
+//   //need checks
+//   return connection.query(`Update messages
+//   set deleted_for=1
+//   where id=$1 RETURNING*`,[message_id])
+// }
+
+const getMessages = (chat_id, profile_id) => {
   return checkIfExistsChatId({ chat_id }).then(({ rows }) => {
     if (!rows[0].chat_exist) {
       throw new CustomError(`Chat with id=${chat_id} not found`, 404);
@@ -65,11 +83,12 @@ const getMessages = (chat_id , profile_id) => {
      on ru.id=receiver.user_id 
      inner join chat_profiles cp 
      on cp.chat_id=c.id
-     where m.chat_id=$1 and cp.profile_id=$2 and
+     where m.chat_id=$1 and cp.profile_id=$2 and NOT ($2 = ANY(COALESCE(m.deleted_for,'{}'::integer[])))
+      and
     (cp.deleted_at is null or  m.created_at >= cp.deleted_at)
      order by m.created_at asc 
      `,
-      [chat_id,profile_id]
+      [chat_id, profile_id]
     );
   });
 };
@@ -84,18 +103,18 @@ const checkIsDeletedChatQuery = (chat_id, profile_id) => {
 const addChat_ProfileQuery = ({ name, profile_id, receiver_id }) => {
   return connection
     .query(
-      `SELECT chat_id FROM chat_profiles 
-    where profile_id in ($1,$2) group by chat_id having count(distinct profile_id)=2`,
+      `SELECT cp.chat_id,c.name FROM chat_profiles cp inner join chats c on cp.chat_id=c.id
+    where profile_id in ($1,$2) group by chat_id,c.name having count(distinct profile_id)=2`,
       [profile_id, receiver_id]
     )
     .then(({ rows, rowCount }) => {
       if (receiver_id == profile_id) {
-        throw new CustomError('you cant add chat to your self', 400);
+        throw new CustomError("you cant add chat to your self", 400);
       }
       if (!rowCount && receiver_id != profile_id) {
         return connection.query(
           `INSERT INTO chats(name) VALUES($1) RETURNING* `,
-          [name || 'My Chat']
+          [name || "My Chat"]
         );
       } else {
         return { rows, existing: true };
@@ -196,4 +215,5 @@ module.exports = {
   deleteChatForProfileQuery,
   checkIsDeletedChatQuery,
   restoreDeletedStatus,
+  deleteMessageForQuery,
 };
