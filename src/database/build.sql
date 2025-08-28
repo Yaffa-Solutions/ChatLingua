@@ -48,6 +48,9 @@ add column deleted_by boolean DEFAULT false ;
 alter table chat_profiles 
 add column deleted_at TIMESTAMPTZ  NULL;
 
+alter table messages
+add column deleted_for integer[] default '{}'
+
 
 CREATE TABLE messages(
     id SERIAL PRIMARY KEY,  

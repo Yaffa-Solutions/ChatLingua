@@ -11,6 +11,7 @@ const {
   getProfileByUserNameQuery,
   deleteMessageQuery,
   editChatNameQuery,
+  deleteMessageForQuery,
   deleteChatForProfileQuery,
   checkIsDeletedChatQuery,
   restoreDeletedStatus,
@@ -238,6 +239,13 @@ const editChatName=({body:{name},params:{id}},res,next)=>{
   }).catch((err)=>next(err));
 }
 
+const deleteMessageFor=(req,res,next)=>{
+  const {message_id,profile_id}=req.body;
+  deleteMessageForQuery(profile_id,message_id)
+  .then(({rows})=>{
+    res.status(200).json({message:`Message deleted for this profile :${req.user.id}`,data:rows})
+  }).catch(err=>next(err))
+}
 
 
 const checkIsDeletedChat=(req,res,next)=>{
@@ -292,5 +300,6 @@ module.exports = {
   editChatName , 
   deleteChatForProfile  , 
   checkIsDeletedChat , 
-  restoreDeletedChat
+  restoreDeletedChat,
+  deleteMessageFor
 };
