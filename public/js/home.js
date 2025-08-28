@@ -124,9 +124,9 @@ export function createHomePage() {
       uImg.src = p.image;
       const uName = createElement("span", ["font-medium"], p.username);
       userItem.append(uImg, uName);
-      userItem.addEventListener("click", () =>{
-        openChatModal(p); 
-        receiver=p.username;
+      userItem.addEventListener("click", () => {
+        openChatModal(p);
+        receiver = p.username;
       });
       userList.appendChild(userItem);
     });
@@ -172,12 +172,16 @@ function openChatModal(user) {
     .then((res) => res.json())
     .then(({ data }) => {
       console.log(data[0].name);
-      openMessageWindow(user.username, data[0].chat_id, data[0].name?data[0].name:'Chat');
+      openMessageWindow(
+        user.username,
+        data[0].chat_id,
+        data[0].name ? data[0].name : "Chat"
+      );
     })
     .catch((err) => {});
 }
 
-const editChatModal = (chatId,chatName) => {
+const editChatModal = (chatId, chatName) => {
   const overlay = createElement("div", [
     "fixed",
     "inset-0",
@@ -239,10 +243,10 @@ const editChatModal = (chatId,chatName) => {
     ],
     "Save"
   );
-  actions.append(saveBtn,cancelBtn)
-  modal.append(title,nameLabel,nameInput,actions)
-  overlay.append(modal)
-  app.append(overlay)
+  actions.append(saveBtn, cancelBtn);
+  modal.append(title, nameLabel, nameInput, actions);
+  overlay.append(modal);
+  app.append(overlay);
 
   cancelBtn.addEventListener("click", () => overlay.remove());
   saveBtn.addEventListener("click", () => {
@@ -272,6 +276,7 @@ const editChatModal = (chatId,chatName) => {
           errorContainer.appendChild(showErrorAlert([data.error]));
           return;
         }
+        socket.emit("changeChatName", { chat_id: chatId, chat_name: newName });
         Swal.fire({
           icon: "success",
           title: "Chat Name Updated",
@@ -279,15 +284,22 @@ const editChatModal = (chatId,chatName) => {
           confirmButtonColor: "#3b82f6",
         }).then(() => {
           overlay.remove();
-          openMessageWindow(receiver, chatId, newName);
         });
       })
-      .catch(() => {    
+      .catch(() => {
         errorContainer.innerHTML = "";
         errorContainer.appendChild(showErrorAlert(["Network error"]));
       });
   });
-}
+};
+
+socket.on("chatNameChanged", ({ chat_id, chat_name }) => {
+//  openMessageWindow(receiver, chat_id, chat_name);
+  console.log("Chat name changed:", chat_name);
+  const chatTitle = document.querySelector("#chatTitle");
+  console.log(chatTitle);
+  if (chatTitle) chatTitle.textContent = chat_name;
+});
 
 const openProfileModal = (profile) => {
   console.log(profile);
@@ -500,9 +512,9 @@ function openMessageWindow(username, chatId, chatName) {
     "justify-between",
   ]);
 
-  const chatTitle = createElement("span", ["font-bold"], chatName);
-
-  const headerMenuIcon = createElement(
+  const chatTitle = createElement("span", ["font-bold"], chatName );
+  chatTitle.id='chatTitle';
+    const headerMenuIcon = createElement(
     "span",
     ["relative", "cursor-pointer", "text-xl", "select-none"],
     "⋮"
@@ -551,8 +563,9 @@ function openMessageWindow(username, chatId, chatName) {
     }
   });
 
-  editChatOption.addEventListener("click",()=>{
-    editChatModal(chatId,chatName)
+  editChatOption.addEventListener("click", () => {
+
+    editChatModal(chatId, chatName);
   });
   deleteChatOption.addEventListener("click", () => {
     Swal.fire({
@@ -831,9 +844,10 @@ function openMessageWindow(username, chatId, chatName) {
       const id = msgEl.getAttribute("data-id");
       if (openDropdown === dropdown) openDropdown = null;
 
-      sender_id==profileId?Swal.fire({
-        title: "Delete message?",
-        html: `
+      sender_id == profileId
+        ? Swal.fire({
+            title: "Delete message?",
+            html: `
     <div class="flex flex-col items-center gap-2 text-left">
       <label class="flex items-center gap-2">
         <input type="radio" name="deleteOption" value="me">
@@ -845,82 +859,83 @@ function openMessageWindow(username, chatId, chatName) {
       </label>
     </div>
   `,
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        cancelButtonText: "Cancel",
-        focusConfirm: false,
-        preConfirm: () => {
-          const option = document.querySelector(
-            'input[name="deleteOption"]:checked'
-          )?.value;
-          if (!option) {
-            Swal.showValidationMessage("Please select an option");
-          }
-          return option;
-        },
-      }).then((result) => {
-        if (result.isConfirmed) {
-          if (result.value === "me") {
-            fetch("/removeMessageFor", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                profile_id:parseInt(profileId),
-                message_id: parseInt(id)
-              }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                console.log(data)
-                removeMessageFor(parseInt(id));
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            focusConfirm: false,
+            preConfirm: () => {
+              const option = document.querySelector(
+                'input[name="deleteOption"]:checked'
+              )?.value;
+              if (!option) {
+                Swal.showValidationMessage("Please select an option");
+              }
+              return option;
+            },
+          }).then((result) => {
+            if (result.isConfirmed) {
+              if (result.value === "me") {
+                fetch("/removeMessageFor", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    profile_id: parseInt(profileId),
+                    message_id: parseInt(id),
+                  }),
+                })
+                  .then((res) => res.json())
+                  .then((data) => {
+                    console.log(data);
+                    removeMessageFor(parseInt(id));
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                  });
+              } else if (result.value === "everyone") {
+                fetch(`/message/${parseInt(id)}`, {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                })
+                  .then((res) => res.json())
+                  .then((result) => {
+                    console.log(result);
+                    socket.emit("removeMessage", {
+                      messageId: id,
+                      chat_id: chatId,
+                    });
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                  });
+              }
+            }
+          })
+        : Swal.fire({
+            title: "Delete message for me?",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              console.log("here", profileId);
+              fetch("/removeMessageFor", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  profile_id: parseInt(profileId),
+                  message_id: parseInt(id),
+                }),
               })
-              .catch((err) => {
-                console.error(err);
-              });
-          } else if (result.value === "everyone") {
-            fetch(`/message/${parseInt(id)}`, {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-            })
-              .then((res) => res.json())
-              .then((result) => {
-                console.log(result)
-                socket.emit("removeMessage", {
-                  messageId: id,
-                  chat_id: chatId,
+                .then((res) => res.json())
+                .then((data) => {
+                  console.log(data);
+                  removeMessageFor(parseInt(id));
+                })
+                .catch((err) => {
+                  console.error(err);
                 });
-              })
-              .catch((err) => {
-                console.error(err);
-              });
-          }
-        }
-      }):Swal.fire({
-        title: "Delete message for me?",
-        showCancelButton: true,
-        confirmButtonText: "Delete",
-        cancelButtonText: "Cancel",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          console.log("here",profileId)
-            fetch("/removeMessageFor", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                profile_id:parseInt(profileId),
-                message_id: parseInt(id),
-              }),
-            })
-            .then((res) => res.json())
-            .then((data) => {
-              console.log(data)
-              removeMessageFor(parseInt(id));
-            })
-            .catch((err) => {
-              console.error(err);
-            });
-        }
-      });
+            }
+          });
     };
 
     function removeMessageFor(messageId) {
