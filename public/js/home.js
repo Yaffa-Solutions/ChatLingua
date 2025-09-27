@@ -1,5 +1,5 @@
 const app = document.getElementById("app");
-const socket = io("http://localhost:5000");
+const socket = io("https://chatlingua.onrender.com/");
 let main;
 let profileUserName;
 let profileId;
