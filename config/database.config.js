@@ -7,7 +7,7 @@ const developmentDatabaseConfig = {
 const productionDatabaseConfig = {
   databaseUrl:
     process.env.PROD_DATABASE_URL ||
-    'postgres://user:password@localhost:5432/mydatabase',
+    'postgresql://neondb_owner:npg_6wk8iAtQnJsb@ep-long-sound-adbi3w8a-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
 };
 
 const testDatabaseConfig = {
@@ -22,6 +22,6 @@ const databases = {
   test: testDatabaseConfig,
 };
 
-const environment = process.env.NODE_ENV || 'dev';
+const environment = process.env.NODE_ENV === 'production' ? 'prod' : process.env.NODE_ENV || 'dev';
 
 module.exports = databases[environment] || databases.dev;
