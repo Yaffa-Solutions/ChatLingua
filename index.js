@@ -32,6 +32,10 @@ io.on('connection',(socket)=>{
       io.to(chat_id).emit('chatDeleted',{chat_id})
     })
 
+    socket.on('changeChatName',({chat_id,chat_name})=>{
+      io.to(chat_id).emit('chatNameChanged',{chat_id,chat_name})
+    })
+    
     socket.on('typing',(username,chat_id)=>{
       socket.to(chat_id).emit('userTyping',{
         username

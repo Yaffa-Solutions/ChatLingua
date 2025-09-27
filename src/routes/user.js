@@ -7,7 +7,7 @@ const { postProfile } = require("../controllers/profile");
 const { putProfile } = require("../controllers/profile");
 const { getTranslate }=require('../controllers/Translate')
 const { authenticateToken } = require('../middleware/auth');
-const { addChatUser, deleteChatUser, addMessageUser, getProfilesByLanguage, getMessagesByChat_id, getAllChatsByProfile, getAllChats, getProfileByUserName, deleteMessage, editChatName, deleteChatForProfile, checkIsDeletedChat, restoreDeletedChat } = require('../controllers/Chat');
+const { addChatUser, deleteChatUser, addMessageUser, getProfilesByLanguage, getMessagesByChat_id, getAllChatsByProfile, getAllChats, getProfileByUserName, deleteMessage, editChatName, deleteChatForProfile, checkIsDeletedChat, restoreDeletedChat, deleteMessageFor } = require('../controllers/Chat');
 const router = express.Router();
 
 router.post('/login',Login);
@@ -33,4 +33,5 @@ router.put('/chat_profile',authenticateToken,deleteChatForProfile);
 router.get('/checkChat',authenticateToken,checkIsDeletedChat);
 router.get('/restoreChat',authenticateToken,restoreDeletedChat);
 
+router.put('/removeMessageFor',authenticateToken,deleteMessageFor)
 module.exports = router;

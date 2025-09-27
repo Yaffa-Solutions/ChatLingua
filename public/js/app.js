@@ -23,11 +23,10 @@ function render(view) {
 
 function handleRoute() {
   let route = (location.hash.replace(/^#\//, '') || 'login');
-  const token =document.cookie.split('=')[1];
-  if(token){
+  const hasToken = document.cookie.includes("token=");
+  if(hasToken){
     route='home'
   }
-
   render(route);
 }
 
