@@ -38,7 +38,7 @@ export function createSignUpPage() {
     "w-full",
     "object-cover",
   ]);
-  img.src = "./images/img.webp";
+  img.src = "./images/chat.png";
   img.alt = "Welcome";
   const overlay = createElement("div", [
     "absolute",
@@ -104,7 +104,9 @@ export function createSignUpPage() {
       "h-12",
       "w-12",
       "rounded-2xl",
-      "bg-gray-900",
+      "bg-gradient-to-r",
+      "from-blue-700",
+      "to-cyan-500",
       "text-white",
       "grid",
       "place-items-center",
@@ -199,7 +201,9 @@ export function createSignUpPage() {
     [
       "w-full",
       "rounded-2xl",
-      "bg-gray-900",
+      "bg-gradient-to-r",
+      "from-blue-700",
+      "to-cyan-500",
       "px-4",
       "py-3",
       "text-sm",
@@ -208,10 +212,6 @@ export function createSignUpPage() {
       "shadow-lg",
       "transition",
       "active:scale-[.99]",
-      "hover:bg-black",
-      "focus:outline-none",
-      "focus:ring-2",
-      "focus:ring-gray-300",
     ],
     "Sign Up"
   );
