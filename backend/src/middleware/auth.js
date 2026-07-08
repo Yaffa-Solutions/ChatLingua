@@ -1,7 +1,11 @@
 const jwt = require("jsonwebtoken");
 const {app}=require('../../config')
 const path = require('path');
-require("env2")(path.join(__dirname, '..', '..', '.env'));
+const fs = require('fs');
+const envPath = path.join(__dirname, '..', '..', '.env');
+if (fs.existsSync(envPath)) {
+  require("env2")(envPath);
+}
 
 const JWT_SECRET = app.jwtSecret;
 const authenticateToken = (req, res, next) => {

@@ -20,8 +20,13 @@ app.use(routes);
 // Serve frontend build in production
 const frontendDist = join(__dirname, "..", "frontend", "dist");
 app.use(express.static(frontendDist));
-app.get("*", (_req, res) => {
-  res.sendFile(join(frontendDist, "index.html"));
+
+// Catch-all: serve index.html for browser navigation (GET requests accepting HTML)
+app.use((req, res, next) => {
+  if (req.method === 'GET' && req.accepts('html')) {
+    return res.sendFile(join(frontendDist, "index.html"));
+  }
+  next();
 });
 
 app.use(errorHandler);

@@ -1,5 +1,9 @@
 const path = require('path');
-require('env2')(path.join(__dirname, '..', '.env')); // Load environment variables from .env file
+const fs = require('fs');
+const envPath = path.join(__dirname, '..', '.env');
+if (fs.existsSync(envPath)) {
+  require('env2')(envPath);
+}
 // this file contains the configuration for the application
 
 
