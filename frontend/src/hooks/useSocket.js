@@ -1,8 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 
-// Dev: separate backend port. Prod: same origin (frontend served by backend)
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || (import.meta.env.DEV ? 'http://localhost:5000' : undefined);
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : undefined);
 
 export function useSocket() {
   const socketRef = useRef(null);
