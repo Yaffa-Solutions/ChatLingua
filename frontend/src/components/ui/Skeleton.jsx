@@ -1,5 +1,5 @@
 export default function Skeleton({ className = '', variant = 'text' }) {
-  const base = 'animate-pulse rounded-lg bg-white/[0.04]';
+  const base = 'animate-pulse rounded-sm bg-stone-line/50';
   const variants = {
     text: 'h-4 w-full',
     avatar: 'h-10 w-10 rounded-full',
@@ -9,8 +9,6 @@ export default function Skeleton({ className = '', variant = 'text' }) {
   };
 
   return (
-    <div className={`relative overflow-hidden ${base} ${variants[variant] || variants.text} ${className}`}>
-      <div className="absolute inset-0 shimmer-bg" />
-    </div>
+    <div className={`${base} ${variants[variant] || variants.text} ${className}`} />
   );
 }

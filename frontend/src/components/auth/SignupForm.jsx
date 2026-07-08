@@ -43,28 +43,23 @@ export default function SignupForm({ onSubmit, onSwitch }) {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="w-full max-w-md mx-auto"
+      transition={{ duration: 0.2 }}
     >
-      <div className="text-center mb-8">
-        <motion.div
-          className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center text-2xl shadow-lg"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="text-center mb-6">
+        <div className="mx-auto mb-4 w-12 h-12 rounded-sm bg-sprout flex items-center justify-center shadow-sm">
+          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
           </svg>
-        </motion.div>
-        <h1 className="text-3xl font-bold gradient-text">Create Account</h1>
-        <p className="mt-2 text-gray-400 text-sm">Join our community of language learners</p>
+        </div>
+        <h1 className="text-display-heading text-ink">Create Account</h1>
+        <p className="mt-1 text-body text-ink-70">Join our community of language learners</p>
       </div>
 
       {alert && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+          className="mb-4 p-3 rounded-sm bg-redline/10 border border-redline/20 text-redline text-caption"
         >
           {alert}
         </motion.div>
@@ -94,14 +89,14 @@ export default function SignupForm({ onSubmit, onSwitch }) {
           onChange={(e) => { setForm({ ...form, confirmPassword: e.target.value }); setErrors({ ...errors, confirmPassword: '' }); }}
           error={errors.confirmPassword}
         />
-        <Button type="submit" variant="gradient" size="lg" className="w-full" loading={loading}>
+        <Button type="submit" variant="sprout" size="lg" className="w-full" loading={loading}>
           Create Account
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-400">
+      <p className="mt-5 text-center text-caption text-ink-70">
         Already have an account?{' '}
-        <button onClick={onSwitch} className="text-primary font-semibold hover:text-secondary transition-colors">
+        <button onClick={onSwitch} className="text-marigold-deep font-semibold hover:text-marigold transition-colors">
           Sign In
         </button>
       </p>

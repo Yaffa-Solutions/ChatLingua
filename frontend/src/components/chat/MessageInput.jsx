@@ -27,10 +27,10 @@ export default function MessageInput({ onSend, onTyping, disabled }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass rounded-2xl p-2 flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-white border-[1.5px] border-stone-line rounded-full px-2 py-1 shadow-sm">
       <button
         type="button"
-        className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-secondary hover:bg-white/5 transition-all flex-shrink-0"
+        className="w-9 h-9 flex items-center justify-center rounded-full text-ink-40 hover:text-marigold transition-colors flex-shrink-0"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -45,17 +45,17 @@ export default function MessageInput({ onSend, onTyping, disabled }) {
         onKeyDown={handleKeyDown}
         placeholder="Type a message..."
         disabled={disabled}
-        className="flex-1 bg-transparent text-gray-100 placeholder-gray-500 outline-none text-sm px-2"
+        className="flex-1 bg-transparent text-ink placeholder-ink-40 outline-none text-body px-1"
       />
 
       <motion.button
         type="submit"
         disabled={!message.trim() || disabled}
         className={`
-          w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 flex-shrink-0
+          w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 flex-shrink-0
           ${message.trim()
-            ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/20'
-            : 'bg-white/5 text-gray-500'
+            ? 'bg-ink text-paper shadow-sm'
+            : 'bg-paper text-ink-40'
           }
         `}
         whileHover={message.trim() ? { scale: 1.05 } : {}}

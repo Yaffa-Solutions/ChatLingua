@@ -11,7 +11,6 @@ function AppContent() {
   const [page, setPage] = useState(null);
   const [needsProfile, setNeedsProfile] = useState(false);
 
-  // If user just registered but has no profile
   const handleRegister = useCallback(async (data) => {
     await register(data);
     setNeedsProfile(true);
@@ -27,10 +26,10 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-400 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary animate-pulse" />
-          <div className="text-gray-400 text-sm">Loading...</div>
+      <div className="min-h-screen bg-paper flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-sm bg-marigold animate-pulse" />
+          <div className="text-caption text-ink-70">Loading...</div>
         </div>
       </div>
     );

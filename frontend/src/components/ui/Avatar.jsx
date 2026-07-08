@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 
 const COLORS = [
-  '#B91C1C', '#D97706', '#EA580C', '#DC2626', '#F59E0B',
-  '#C2410C', '#991B1B', '#B45309', '#F97316', '#92400E',
-  '#7F1D1D', '#78350F', '#9A3412', '#7C2D12', '#F87171',
+  '#1D2B3A', '#E0A526', '#3F8F5F', '#C4472F', '#A79C87',
+  '#B8830F', '#4C5A68', '#8A94A0', '#DCEDE1',
 ];
 
 function getColor(name) {
@@ -24,6 +23,7 @@ export default function Avatar({ alt = '', size = 'md', status, className = '' }
   };
 
   const bgColor = getColor(alt);
+  const isLight = bgColor === '#E0A526' || bgColor === '#DCEDE1' || bgColor === '#8A94A0';
 
   return (
     <motion.div
@@ -32,15 +32,15 @@ export default function Avatar({ alt = '', size = 'md', status, className = '' }
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       <div
-        className="w-full h-full rounded-full flex items-center justify-center text-white font-bold text-sm ring-2 ring-white/10"
-        style={{ backgroundColor: bgColor }}
+        className="w-full h-full rounded-full flex items-center justify-center text-sm font-bold ring-2 ring-white/20"
+        style={{ backgroundColor: bgColor, color: isLight ? '#1D2B3A' : '#F3F0E6' }}
       >
         {alt.charAt(0).toUpperCase()}
       </div>
       {status && (
         <span
-          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ring-2 ring-dark-400 ${
-            status === 'online' ? 'bg-green-500' : status === 'away' ? 'bg-yellow-500' : 'bg-gray-500'
+          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ring-2 ring-paper ${
+            status === 'online' ? 'bg-sprout' : status === 'away' ? 'bg-marigold' : 'bg-stone'
           }`}
         />
       )}

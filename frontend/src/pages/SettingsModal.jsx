@@ -49,44 +49,44 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdate }) {
     <Modal isOpen={isOpen} onClose={onClose} title="Settings" size="sm">
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-300">Native Language</label>
+          <label className="block text-caption font-medium text-ink">Native Language</label>
           <select
             value={form.native_language_id}
             onChange={(e) => setForm({ ...form, native_language_id: Number(e.target.value) })}
-            className="input-field"
+            className="w-full rounded-sm border border-stone-line bg-white px-4 py-2.5 text-body text-ink outline-none focus:border-marigold focus:ring-2 focus:ring-marigold/20"
           >
             {LANGS.map((lang, i) => (
-              <option key={i} value={i} className="bg-dark-400">{lang}</option>
+              <option key={i} value={i}>{lang}</option>
             ))}
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-300">Learning Language</label>
+          <label className="block text-caption font-medium text-ink">Learning Language</label>
           <select
             value={form.learning_language_id}
             onChange={(e) => setForm({ ...form, learning_language_id: Number(e.target.value) })}
-            className="input-field"
+            className="w-full rounded-sm border border-stone-line bg-white px-4 py-2.5 text-body text-ink outline-none focus:border-marigold focus:ring-2 focus:ring-marigold/20"
           >
             {LANGS.map((lang, i) => (
-              <option key={i} value={i} className="bg-dark-400">{lang}</option>
+              <option key={i} value={i}>{lang}</option>
             ))}
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-300">Profile Image URL</label>
+          <label className="block text-caption font-medium text-ink">Profile Image URL</label>
           <input
             type="url"
             value={form.image}
             onChange={(e) => setForm({ ...form, image: e.target.value })}
-            className="input-field"
+            className="w-full rounded-sm border border-stone-line bg-white px-4 py-2.5 text-body text-ink placeholder-ink-40 outline-none focus:border-marigold focus:ring-2 focus:ring-marigold/20"
             placeholder="https://example.com/avatar.jpg"
           />
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="p-3 rounded-sm bg-redline/10 border border-redline/20 text-redline text-caption">
             {error}
           </div>
         )}

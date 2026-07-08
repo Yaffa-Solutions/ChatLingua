@@ -36,14 +36,14 @@ export default function ChatWindow({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex-1 flex flex-col h-full p-4 gap-3"
+      className="flex-1 flex flex-col h-full p-3 gap-3"
     >
       <ChatHeader
         receiver={activeChat}
         onDeleteChat={() => onDeleteChat?.(activeChat)}
       />
 
-      <div className="flex-1 overflow-y-auto rounded-2xl bg-dark-300/50 p-4 scroll-smooth">
+      <div className="flex-1 overflow-y-auto bg-white border border-stone-line rounded-md p-4">
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (

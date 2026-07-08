@@ -17,19 +17,19 @@ export default function ChatHeader({ receiver, onDeleteChat }) {
   }, []);
 
   return (
-    <div className="glass rounded-2xl p-3 flex items-center justify-between">
+    <div className="bg-white border border-stone-line rounded-md px-4 py-3 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-3">
         <Avatar src={receiver?.image} alt={receiver?.name || 'User'} size="md" />
         <div>
-          <h3 className="font-semibold text-gray-100 text-sm">{receiver?.name || 'Select a chat'}</h3>
-          <p className="text-xs text-gray-400">{receiver?.lang || ''}</p>
+          <h3 className="font-semibold text-ink text-body">{receiver?.name || 'Select a chat'}</h3>
+          <p className="text-caption text-marigold-deep font-medium">{receiver?.lang || ''}</p>
         </div>
       </div>
 
       <div className="relative" ref={menuRef}>
         <button
           onClick={() => setShowMenu(!showMenu)}
-          className="w-9 h-9 flex items-center justify-center rounded-xl glass text-gray-400 hover:text-white transition-all"
+          className="w-9 h-9 flex items-center justify-center rounded-sm bg-white border border-stone-line text-ink-40 hover:text-ink transition-all"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01" />
@@ -39,14 +39,14 @@ export default function ChatHeader({ receiver, onDeleteChat }) {
         <AnimatePresence>
           {showMenu && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: -5 }}
+              initial={{ opacity: 0, scale: 0.95, y: -5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -5 }}
-              className="absolute right-0 mt-2 w-44 glass rounded-xl overflow-hidden z-30"
+              exit={{ opacity: 0, scale: 0.95, y: -5 }}
+              className="absolute right-0 mt-2 w-44 bg-white border border-stone-line rounded-sm shadow-sm overflow-hidden z-30"
             >
               <button
                 onClick={() => { setShowMenu(false); onDeleteChat?.(); }}
-                className="w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2 transition-colors"
+                className="w-full px-4 py-2.5 text-caption text-redline hover:bg-paper/50 flex items-center gap-2 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

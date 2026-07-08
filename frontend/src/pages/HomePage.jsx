@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Sidebar from '../components/layout/Sidebar';
 import ChatWindow from '../components/chat/ChatWindow';
-import ParticleBackground from '../components/ui/ParticleBackground';
 import SettingsModal from './SettingsModal';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../hooks/useSocket';
@@ -129,12 +128,10 @@ export default function HomePage() {
 
   const handleDeleteMessage = useCallback(async (messageId, isOwn) => {
     if (isOwn) {
-      // Let user choose - for simplicity delete for everyone if own
       try {
         await api.deleteMessage(messageId);
         emit('removeMessage', { messageId, chat_id: activeChat.id });
       } catch (err) {
-        // Fallback to delete for me
         try {
           await api.removeMessageFor({
             profile_id: user?.id,
@@ -166,7 +163,6 @@ export default function HomePage() {
       setMessages([]);
       setActiveChat(null);
     } catch (err) {
-      // Delete for me only
       try {
         await api.deleteChatForProfile({
           chat_id: activeChat.id,
@@ -187,9 +183,7 @@ export default function HomePage() {
   const responsiveSidebar = sidebarOpen;
 
   return (
-    <div className="h-screen flex overflow-hidden relative">
-      <ParticleBackground />
-
+    <div className="h-screen flex overflow-hidden relative bg-paper">
       <Sidebar
         user={user}
         profiles={profiles}

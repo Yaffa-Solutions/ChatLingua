@@ -3,82 +3,97 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 24px;
+    --sp-6: 32px;
+    --sp-7: 48px;
+    --sp-8: 64px;
+    --r-sm: 10px;
+    --r-md: 16px;
+    --r-lg: 22px;
+  }
+
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(185, 28, 28, 0.3) transparent;
+    scrollbar-color: #E1DAC8 transparent;
   }
 
   *::-webkit-scrollbar { width: 6px; }
   *::-webkit-scrollbar-track { background: transparent; }
-  *::-webkit-scrollbar-thumb { background: rgba(185, 28, 28, 0.3); border-radius: 3px; }
-  *::-webkit-scrollbar-thumb:hover { background: rgba(185, 28, 28, 0.5); }
+  *::-webkit-scrollbar-thumb { background: #E1DAC8; border-radius: 3px; }
+  *::-webkit-scrollbar-thumb:hover { background: #A79C87; }
 
   body {
-    @apply bg-dark-400 text-gray-100;
+    @apply bg-paper text-ink font-sans;
   }
 }
 
 @layer components {
-  .glass {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] shadow-xl;
+  .bubble-learner {
+    @apply bg-ink text-paper rounded-[4px_16px_16px_16px] px-4 py-2.5 text-body max-w-[75%] shadow-sm;
   }
 
-  .glass-hover {
-    @apply hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300;
+  .bubble-native {
+    @apply bg-white border border-stone-line rounded-[16px_4px_16px_16px] px-4 py-2.5 text-body max-w-[75%] shadow-sm;
   }
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary via-accent to-primary bg-[length:200%] animate-gradient;
+  .bubble-correction {
+    @apply bg-marigold-tint rounded-md px-3 py-2 text-caption mt-1 overflow-hidden;
   }
 
-  .glow-border {
-    @apply relative;
+  .btn-primary {
+    @apply bg-marigold text-ink font-semibold px-5 py-2.5 rounded-sm text-caption transition-all duration-150 hover:bg-marigold-deep hover:text-white active:scale-[0.97];
   }
 
-  .glow-border::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, #B91C1C, #D97706, #EA580C, #B91C1C);
-    background-size: 300% 300%;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: gradient 4s ease infinite;
+  .btn-secondary {
+    @apply bg-transparent border-2 border-ink text-ink font-semibold px-5 py-2 rounded-sm text-caption transition-all duration-150 hover:bg-ink hover:text-paper active:scale-[0.97];
   }
 
-  .glow-card {
-    @apply glass rounded-2xl overflow-hidden transition-all duration-500;
+  .btn-ghost {
+    @apply bg-transparent text-ink-70 font-medium px-4 py-2 rounded-sm text-caption transition-all duration-150 hover:text-ink active:scale-[0.97];
   }
 
-  .glow-card:hover {
-    @apply shadow-[0_0_30px_rgba(185,28,28,0.15)] border-secondary/30;
-    transform: translateY(-2px);
+  .btn-sprout {
+    @apply bg-sprout text-white font-semibold px-5 py-2.5 rounded-sm text-caption transition-all duration-150 hover:opacity-90 active:scale-[0.97];
   }
 
-  .neon-glow {
-    box-shadow: 0 0 20px rgba(185, 28, 28, 0.3),
-                0 0 40px rgba(185, 28, 28, 0.1);
+  .input-chat {
+    @apply w-full bg-white border-[1.5px] border-stone-line rounded-full px-5 py-3 text-body text-ink placeholder-ink-40 outline-none transition-all duration-150 focus:border-marigold focus:ring-2 focus:ring-marigold/20;
   }
 
-  .input-field {
-    @apply w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-sm text-gray-100 placeholder-gray-500 outline-none transition-all duration-300 focus:border-secondary/50 focus:ring-2 focus:ring-secondary/20 focus:bg-white/[0.06];
+  .card-raised {
+    @apply bg-white rounded-lg border border-stone-line shadow-sm;
   }
 
-  .shimmer-bg {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(217, 119, 6, 0.08) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite linear;
+  .badge-level {
+    @apply inline-flex items-center px-3 py-1 rounded-full bg-marigold-tint text-marigold-deep border border-marigold/30 text-caption font-medium;
   }
-}
 
-@layer utilities {
-  .text-balance { text-wrap: balance; }
+  .badge-streak {
+    @apply inline-flex items-center px-3 py-1 rounded-full bg-sprout-tint text-sprout text-caption font-medium;
+  }
+
+  .tag-language {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-stone-line text-caption text-ink;
+  }
+
+  .nav-tab {
+    @apply flex flex-col items-center gap-1 px-3 py-2 text-caption text-ink-40 transition-colors duration-150;
+  }
+
+  .nav-tab-active {
+    @apply text-ink font-medium;
+  }
+
+  .strike-correction {
+    @apply text-redline line-through decoration-2 decoration-redline/70;
+  }
+
+  .text-replacement {
+    @apply text-marigold font-semibold;
+  }
 }
