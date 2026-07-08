@@ -1,0 +1,45 @@
+{
+  "name": "chatlingua-backend",
+  "version": "1.0.0",
+  "description": "ChatLingua backend server",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "db:build": "cross-env NODE_ENV=dev node src/database/migration/create-database.js",
+    "secret": "node scripts/generate-secret.js",
+    "db:seed": "node src/database/migration/seed-data.js",
+    "test:prod": "cross-env NODE_ENV=test npm run db:build && npm run db:seed  && jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yaffa-Solutions/ChatLingua.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yaffa-Solutions/ChatLingua/issues"
+  },
+  "homepage": "https://github.com/Yaffa-Solutions/ChatLingua#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cross-env": "^10.0.0",
+    "env": "^0.0.2",
+    "env2": "^2.2.2",
+    "express": "^5.1.0",
+    "jest": "^30.0.5",
+    "joi": "^18.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "pg": "^8.16.3",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "supertest": "^7.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
