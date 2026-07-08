@@ -15,8 +15,14 @@ app.use(express.static(join(__dirname, "./public")));
 
 app.set("port", config.app.port || 5000);
 
-
 app.use(routes);
+
+// Serve frontend build in production
+const frontendDist = join(__dirname, "..", "frontend", "dist");
+app.use(express.static(frontendDist));
+app.get("*", (_req, res) => {
+  res.sendFile(join(frontendDist, "index.html"));
+});
 
 app.use(errorHandler);
 
