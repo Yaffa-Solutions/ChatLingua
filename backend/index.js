@@ -6,13 +6,10 @@ const {Server} = require('socket.io');
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_URL || true,
+const io = new Server(server,{cors:{
+    origin: process.env.CLIENT_URL || "http://localhost:5000",
     methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+}});
 
 io.on('connection',(socket)=>{
     console.log('User Connected',socket.id);
