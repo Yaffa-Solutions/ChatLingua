@@ -10,28 +10,28 @@ const { authenticateToken } = require('../middleware/auth');
 const { addChatUser, deleteChatUser, addMessageUser, getProfilesByLanguage, getMessagesByChat_id, getAllChatsByProfile, getAllChats, getProfileByUserName, deleteMessage, editChatName, deleteChatForProfile, checkIsDeletedChat, restoreDeletedChat, deleteMessageFor } = require('../controllers/Chat');
 const router = express.Router();
 
-router.post('/login',Login);
-router.post('/register',SignUp);
+router.post('/api/login',Login);
+router.post('/api/register',SignUp);
 
-router.get("/profile",authenticateToken ,getProfile);
-router.post("/profile",authenticateToken,postProfile);
-router.put("/profile",authenticateToken,putProfile)
+router.get("/api/profile",authenticateToken ,getProfile);
+router.post("/api/profile",authenticateToken,postProfile);
+router.put("/api/profile",authenticateToken,putProfile)
 
-router.post('/translate',getTranslate)
+router.post('/api/translate',getTranslate)
 
-router.post('/chat',authenticateToken,addChatUser);
-router.delete('/chat/:id',authenticateToken,deleteChatUser);
-router.post('/chat/message',authenticateToken,addMessageUser);
-router.get('/chat/profiles/:id',authenticateToken , getProfilesByLanguage);
-router.get('/chat/messages',authenticateToken,getMessagesByChat_id);
-router.get('/chat/:profile_id',authenticateToken,getAllChatsByProfile);
-router.get('/chats',authenticateToken,getAllChats);
-router.get('/profiles/:username',authenticateToken,getProfileByUserName);
-router.delete('/message/:id',authenticateToken,deleteMessage);
-router.put('/chat/:id',authenticateToken , editChatName);
-router.put('/chat_profile',authenticateToken,deleteChatForProfile);
-router.get('/checkChat',authenticateToken,checkIsDeletedChat);
-router.get('/restoreChat',authenticateToken,restoreDeletedChat);
+router.post('/api/chat',authenticateToken,addChatUser);
+router.delete('/api/chat/:id',authenticateToken,deleteChatUser);
+router.post('/api/chat/message',authenticateToken,addMessageUser);
+router.get('/api/chat/profiles/:id',authenticateToken , getProfilesByLanguage);
+router.get('/api/chat/messages',authenticateToken,getMessagesByChat_id);
+router.get('/api/chat/:profile_id',authenticateToken,getAllChatsByProfile);
+router.get('/api/chats',authenticateToken,getAllChats);
+router.get('/api/profiles/:username',authenticateToken,getProfileByUserName);
+router.delete('/api/message/:id',authenticateToken,deleteMessage);
+router.put('/api/chat/:id',authenticateToken , editChatName);
+router.put('/api/chat_profile',authenticateToken,deleteChatForProfile);
+router.get('/api/checkChat',authenticateToken,checkIsDeletedChat);
+router.get('/api/restoreChat',authenticateToken,restoreDeletedChat);
 
-router.put('/removeMessageFor',authenticateToken,deleteMessageFor)
+router.put('/api/removeMessageFor',authenticateToken,deleteMessageFor)
 module.exports = router;

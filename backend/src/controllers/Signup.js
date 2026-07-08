@@ -22,8 +22,11 @@ const SignUp = (req, res ,next) => {
     })
     .then(({token}) => {
       
-      res.cookie('token',token,{
-         maxAge: 60 * 60 * 1000,
+      res.cookie('token', token, {
+        maxAge: 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
       });
       
       res.status(201).json({

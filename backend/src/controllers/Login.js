@@ -28,8 +28,11 @@ const Login = (req, res, next) => {
     })
     .then(({payload,token}) => {
 
-      res.cookie('token',token,{
-         maxAge: 60 * 60 * 1000,
+      res.cookie('token', token, {
+        maxAge: 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
       });
       
       res.status(200).json({
