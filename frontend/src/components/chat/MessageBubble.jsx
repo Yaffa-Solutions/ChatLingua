@@ -44,14 +44,14 @@ export default function MessageBubble({ message, isOwn, nativeLang, onDelete }) 
       initial={{ opacity: 0, y: 4, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.18 }}
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-2`}
+      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-3`}
     >
-      <div className={`flex gap-1.5 max-w-[65%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex gap-2 max-w-[75%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
         <div className="flex-shrink-0 mt-1">
           <img
             src={isOwn ? user?.image : message.sender_image}
             alt=""
-            className="w-6 h-6 rounded-full object-cover ring-2 ring-white/20"
+            className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
             onError={(e) => {
               e.target.style.display = 'none';
               e.target.nextSibling.style.display = 'flex';
