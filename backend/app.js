@@ -11,7 +11,6 @@ const cookieParser = require("cookie-parser");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.static(join(__dirname, "./public")));
 
 app.set("port", config.app.port || 5000);
 
