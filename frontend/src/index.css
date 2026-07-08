@@ -34,11 +34,11 @@
 
 @layer components {
   .bubble-learner {
-    @apply bg-ink text-paper rounded-[4px_16px_16px_16px] px-4 py-2.5 text-body max-w-[75%] shadow-sm;
+    @apply bg-ink text-paper rounded-[4px_14px_14px_14px] px-3.5 py-2 text-[15px] leading-relaxed max-w-[65%] shadow-sm;
   }
 
   .bubble-native {
-    @apply bg-white border border-stone-line rounded-[16px_4px_16px_16px] px-4 py-2.5 text-body max-w-[75%] shadow-sm;
+    @apply bg-white border border-stone-line rounded-[14px_4px_14px_14px] px-3.5 py-2 text-[15px] leading-relaxed max-w-[65%] shadow-sm;
   }
 
   .bubble-correction {
