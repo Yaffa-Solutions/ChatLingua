@@ -36,42 +36,44 @@ export default function ChatWindow({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex-1 flex flex-col h-full p-3 gap-3"
+      className="flex-1 flex flex-col h-full p-4 gap-4"
     >
       <ChatHeader
         receiver={activeChat}
         onDeleteChat={() => onDeleteChat?.(activeChat)}
       />
 
-      <div className="flex-1 overflow-y-auto bg-white border border-stone-line rounded-md p-4">
-        {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className={`flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex gap-2 ${i % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <Skeleton variant="avatar" className="w-8 h-8" />
-                  <Skeleton className={`h-12 ${i % 2 === 0 ? 'w-48' : 'w-36'}`} />
+      <div className="flex-1 bg-white border border-stone-line rounded-lg shadow-sm overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-0.5">
+          {loading ? (
+            <div className="space-y-4 pt-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={`flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`flex gap-2 ${i % 2 === 0 ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <Skeleton variant="avatar" className="w-7 h-7" />
+                    <Skeleton className={`h-10 ${i % 2 === 0 ? 'w-40' : 'w-32'}`} />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <AnimatePresence>
-            {messages.map((msg, i) => (
-              <MessageBubble
-                key={msg.id || i}
-                message={msg}
-                isOwn={msg.sender_id === activeChat.myId}
-                nativeLang={nativeLang}
-                onDelete={onDeleteMessage}
-              />
-            ))}
-          </AnimatePresence>
-        )}
+              ))}
+            </div>
+          ) : (
+            <AnimatePresence initial={false}>
+              {messages.map((msg, i) => (
+                <MessageBubble
+                  key={msg.id || i}
+                  message={msg}
+                  isOwn={msg.sender_id === activeChat.myId}
+                  nativeLang={nativeLang}
+                  onDelete={onDeleteMessage}
+                />
+              ))}
+            </AnimatePresence>
+          )}
 
-        <TypingIndicator username={typingUser} />
+          <TypingIndicator username={typingUser} />
 
-        <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       <MessageInput

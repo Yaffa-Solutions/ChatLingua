@@ -28,7 +28,7 @@ const getAllChatsByProfileQuery = (profile_id) => {
 
 const getProfilesByLanguageId = (learning_language_id) => {
   return connection.query(
-    `SELECT u.username  ,p.image , p.learning_language_id,p.native_language_id
+    `SELECT u.username, p.id, p.image, p.learning_language_id, p.native_language_id
      FROM profiles p inner join users u 
      on p.user_id =u.id WHERE native_language_id=$1`,
     [learning_language_id]

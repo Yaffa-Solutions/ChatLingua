@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : undefined);
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://chatlingua.onrender.com';
 
 export function useSocket() {
   const socketRef = useRef(null);
