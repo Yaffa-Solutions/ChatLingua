@@ -7,10 +7,10 @@ export function useChat(socket) {
   const [typingUser, setTypingUser] = useState('');
   const typingTimeout = useRef(null);
 
-  const loadMessages = useCallback(async (chatId, profileId) => {
+  const loadMessages = useCallback(async (chatId) => {
     setLoading(true);
     try {
-      const data = await api.getChatMessages(chatId, profileId);
+      const data = await api.getChatMessages(chatId);
       setMessages(data?.data?.messages || []);
     } catch (err) {
       console.error('Failed to load messages:', err);
@@ -19,47 +19,48 @@ export function useChat(socket) {
     }
   }, []);
 
-  const sendMessage = useCallback(async (chatId, content, senderId, receiverId, senderImage) => {
-    try {
-      const data = await api.sendMessage({
-        chat_id: chatId,
-        content,
-        sender_id: senderId,
-        receiver_id: receiverId,
-      });
-      const newMsg = data?.data?.messages;
-      if (newMsg) {
-        socket?.current?.emit('sendMessage', {
-          messageId: newMsg.id,
+  const sendMessage = useCallback(
+    async (chatId, content, receiverId) => {
+      try {
+        const data = await api.sendMessage({
           chat_id: chatId,
           content,
-          sender_id: senderId,
           receiver_id: receiverId,
-          sender_image: senderImage,
         });
-        setMessages(prev => [...prev, newMsg]);
+        const newMsg = data?.data?.messages;
+        if (newMsg) {
+          socket?.current?.emit('sendMessage', {
+            messageId: newMsg.id,
+            chat_id: chatId,
+          });
+          setMessages((prev) => [...prev, newMsg]);
+        }
+        return newMsg;
+      } catch (err) {
+        console.error('Failed to send message:', err);
       }
-      return newMsg;
-    } catch (err) {
-      console.error('Failed to send message:', err);
-    }
-  }, [socket]);
+    },
+    [socket],
+  );
 
   const addMessage = useCallback((msg) => {
-    setMessages(prev => {
-      if (prev.some(m => m.id === msg.messageId)) return prev;
-      return [...prev, {
-        id: msg.messageId,
-        content: msg.content,
-        sender_id: msg.sender_id,
-        sender_image: msg.sender_image,
-        chat_id: msg.chat_id,
-      }];
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === msg.messageId)) return prev;
+      return [
+        ...prev,
+        {
+          id: msg.messageId,
+          content: msg.content,
+          sender_id: msg.sender_id,
+          sender_image: msg.sender_image,
+          chat_id: msg.chat_id,
+        },
+      ];
     });
   }, []);
 
   const removeMessage = useCallback((messageId) => {
-    setMessages(prev => prev.filter(m => m.id !== messageId));
+    setMessages((prev) => prev.filter((m) => m.id !== messageId));
   }, []);
 
   const handleTyping = useCallback((username) => {
@@ -75,9 +76,11 @@ export function useChat(socket) {
   }, []);
 
   return {
-    messages, setMessages,
+    messages,
+    setMessages,
     loading,
-    typingUser, setTypingUser,
+    typingUser,
+    setTypingUser,
     loadMessages,
     sendMessage,
     addMessage,

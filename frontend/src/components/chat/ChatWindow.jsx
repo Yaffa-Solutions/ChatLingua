@@ -16,7 +16,6 @@ export default function ChatWindow({
   onTyping,
   onDeleteMessage,
   onDeleteChat,
-  nativeLang,
 }) {
   const messagesEndRef = useRef(null);
 
@@ -63,7 +62,6 @@ export default function ChatWindow({
                   key={msg.id || i}
                   message={msg}
                   isOwn={msg.sender_id === activeChat.myId}
-                  nativeLang={nativeLang}
                   onDelete={onDeleteMessage}
                 />
               ))}
@@ -79,7 +77,7 @@ export default function ChatWindow({
       <MessageInput
         onSend={onSend}
         onTyping={onTyping}
-        disabled={!activeChat}
+        disabled={!activeChat?.id || loading}
       />
     </motion.div>
   );

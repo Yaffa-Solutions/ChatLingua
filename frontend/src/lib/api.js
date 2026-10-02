@@ -26,36 +26,29 @@ export const api = {
   login: (credentials) =>
     request('/login', { method: 'POST', body: credentials }),
 
-  register: (data) =>
-    request('/register', { method: 'POST', body: data }),
+  logout: () => request('/logout', { method: 'POST' }),
 
-  getProfile: () =>
-    request('/profile'),
+  register: (data) => request('/register', { method: 'POST', body: data }),
 
-  createProfile: (data) =>
-    request('/profile', { method: 'POST', body: data }),
+  getProfile: () => request('/profile'),
 
-  updateProfile: (data) =>
-    request('/profile', { method: 'PUT', body: data }),
+  createProfile: (data) => request('/profile', { method: 'POST', body: data }),
+
+  updateProfile: (data) => request('/profile', { method: 'PUT', body: data }),
 
   // Chats
-  getProfiles: (learnId) =>
-    request(`/chat/profiles/${learnId}`),
+  getProfiles: (learnId) => request(`/chat/profiles/${learnId}`),
 
-  getChatMessages: (chatId, profileId) =>
-    request(`/chat/messages?chat_id=${chatId}&profile_id=${profileId}`),
+  getChatMessages: (chatId) => request(`/chat/messages?chat_id=${chatId}`),
 
-  checkChat: (chatId, profileId) =>
-    request(`/checkChat?chat_id=${chatId}&profile_id=${profileId}`),
+  checkChat: (chatId) => request(`/checkChat?chat_id=${chatId}`),
 
-  createChat: (data) =>
-    request('/chat', { method: 'POST', body: data }),
+  createChat: (data) => request('/chat', { method: 'POST', body: data }),
 
-  deleteChat: (chatId) =>
-    request(`/chat/${chatId}`, { method: 'DELETE' }),
+  deleteChat: (chatId) => request(`/chat/${chatId}`, { method: 'DELETE' }),
 
-  deleteChatForProfile: (data) =>
-    request('/chat_profile', { method: 'PUT', body: data }),
+  deleteChatForProfile: (chatId) =>
+    request('/chat_profile', { method: 'PUT', body: { chat_id: chatId } }),
 
   updateChatName: (chatId, data) =>
     request(`/chat/${chatId}`, { method: 'PUT', body: data }),
@@ -64,18 +57,16 @@ export const api = {
   sendMessage: (data) =>
     request('/chat/message', { method: 'POST', body: data }),
 
-  removeMessageFor: (data) =>
-    request('/removeMessageFor', { method: 'PUT', body: data }),
+  removeMessageFor: (messageId) =>
+    request('/removeMessageFor', {
+      method: 'PUT',
+      body: { message_id: messageId },
+    }),
 
   deleteMessage: (messageId) =>
     request(`/message/${messageId}`, { method: 'DELETE' }),
 
-  translate: (data) =>
-    request('/translate', { method: 'POST', body: data }),
+  translate: (data) => request('/translate', { method: 'POST', body: data }),
 
-  restoreChat: (chatId, profileId) =>
-    request(`/restoreChat?chat_id=${chatId}&profile_id=${profileId}`),
-
-  getProfileByUsername: (username) =>
-    request(`/profiles/${username}`),
+  getProfileByUsername: (username) => request(`/profiles/${username}`),
 };

@@ -9,9 +9,17 @@ export function AuthProvider({ children }) {
 
   const checkAuth = useCallback(async () => {
     try {
-      const data = await api.getProfile();
+      // Add a 4 second timeout guard so initial render is never blocked by a sleeping server
+      const fetchPromise = api.getProfile();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Auth check timeout')), 4000)
+      );
+
+      const data = await Promise.race([fetchPromise, timeoutPromise]);
       if (data?.data) {
         setUser(data.data);
+      } else {
+        setUser(null);
       }
     } catch {
       setUser(null);
@@ -34,9 +42,12 @@ export function AuthProvider({ children }) {
     return await api.register(data);
   };
 
-  const logout = () => {
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.logout();
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

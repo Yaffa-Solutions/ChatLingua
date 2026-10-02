@@ -9,12 +9,14 @@ import { useChat } from '../hooks/useChat';
 import { api } from '../lib/api';
 
 export default function HomePage() {
-  const { user, logout } = useAuth();
-  const { socket, emit, on, off } = useSocket();
+  const { user, logout, checkAuth } = useAuth();
+  const { socket, emit, on, off } = useSocket(Boolean(user));
   const {
-    messages, setMessages,
+    messages,
+    setMessages,
     loading: messagesLoading,
-    typingUser, setTypingUser,
+    typingUser,
+    setTypingUser,
     loadMessages,
     sendMessage,
     addMessage,
@@ -25,6 +27,7 @@ export default function HomePage() {
   const [profiles, setProfiles] = useState([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [activeChat, setActiveChat] = useState(null);
+  const [chatOpening, setChatOpening] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +39,11 @@ export default function HomePage() {
     (async () => {
       try {
         const data = await api.getProfiles(user.learn_id);
-        setProfiles(data?.data?.profiles || []);
+        const nextProfiles = (data?.data?.profiles || []).filter(
+          (profile) =>
+            String(profile.user_id ?? profile.userId) !== String(user.id),
+        );
+        setProfiles(nextProfiles);
       } catch (err) {
         console.error('Failed to load profiles:', err);
       } finally {
@@ -68,25 +75,19 @@ export default function HomePage() {
     };
   }, [on, addMessage, removeMessage, handleTyping]);
 
-  const selectProfile = useCallback(async (profile) => {
-    try {
-      const data = await api.createChat({
-        name: 'Chat',
-        username: profile.username,
-      });
-      const chatId = data.data[0].chat_id;
+  const selectProfile = useCallback(
+    async (profile) => {
+      if (
+        !profile ||
+        String(profile.user_id ?? profile.userId) === String(user?.id)
+      ) {
+        return;
+      }
 
-      currentChatIdRef.current = chatId;
-
-      emit('UserJoin', user?.username, chatId);
-
-      await loadMessages(chatId, user?.id);
-
-      // Restore if deleted
-      api.restoreChat(chatId, user?.id).catch(() => {});
-
+      setMessages([]);
+      setChatOpening(true);
       setActiveChat({
-        id: chatId,
+        id: null,
         name: profile.username,
         image: profile.image,
         lang: `Native ${['', 'Arabic', 'English', 'French', 'Spanish', 'German', 'Turkish'][profile.native_language_id] || 'Unknown'}`,
@@ -95,30 +96,50 @@ export default function HomePage() {
         receiverId: profile.id,
       });
 
-      // Close sidebar on mobile
       if (window.innerWidth < 1024) {
         setSidebarOpen(false);
       }
-    } catch (err) {
-      console.error('Failed to select profile:', err);
-    }
-  }, [user, emit, loadMessages]);
 
-  const handleSendMessage = useCallback(async (content) => {
-    if (!activeChat) return;
-    try {
-      await sendMessage(
-        activeChat.id,
-        content,
-        user?.id,
-        activeChat.receiverId,
-        user?.image
-      );
-      api.restoreChat(activeChat.id, user?.id).catch(() => {});
-    } catch (err) {
-      console.error('Failed to send message:', err);
-    }
-  }, [activeChat, user, sendMessage]);
+      try {
+        const data = await api.createChat({
+          name: 'Chat',
+          username: profile.username,
+        });
+        const chatId = data.data?.chat?.id ?? data.data?.[0]?.chat_id;
+        if (!chatId) throw new Error('Chat response did not include an id');
+
+        currentChatIdRef.current = chatId;
+
+        emit('UserJoin', user?.username, chatId);
+
+        setActiveChat((current) =>
+          current?.receiverId === profile.id
+            ? { ...current, id: chatId }
+            : current,
+        );
+        await loadMessages(chatId);
+      } catch (err) {
+        console.error('Failed to select profile:', err);
+        setActiveChat(null);
+        setMessages([]);
+      } finally {
+        setChatOpening(false);
+      }
+    },
+    [user, emit, loadMessages, setMessages],
+  );
+
+  const handleSendMessage = useCallback(
+    async (content) => {
+      if (!activeChat) return;
+      try {
+        await sendMessage(activeChat.id, content, activeChat.receiverId);
+      } catch (err) {
+        console.error('Failed to send message:', err);
+      }
+    },
+    [activeChat, user, sendMessage],
+  );
 
   const handleTypingEmit = useCallback(() => {
     if (activeChat) {
@@ -126,34 +147,31 @@ export default function HomePage() {
     }
   }, [activeChat, user, emit]);
 
-  const handleDeleteMessage = useCallback(async (messageId, isOwn) => {
-    if (isOwn) {
-      try {
-        await api.deleteMessage(messageId);
-        emit('removeMessage', { messageId, chat_id: activeChat.id });
-      } catch (err) {
+  const handleDeleteMessage = useCallback(
+    async (messageId, isOwn) => {
+      if (isOwn) {
         try {
-          await api.removeMessageFor({
-            profile_id: user?.id,
-            message_id: messageId,
-          });
+          await api.deleteMessage(messageId);
           removeMessage(messageId);
-        } catch (e) {
-          console.error('Failed to delete message:', e);
+        } catch (err) {
+          try {
+            await api.removeMessageFor(messageId);
+            removeMessage(messageId);
+          } catch (e) {
+            console.error('Failed to delete message:', e);
+          }
+        }
+      } else {
+        try {
+          await api.removeMessageFor(messageId);
+          removeMessage(messageId);
+        } catch (err) {
+          console.error('Failed to delete message:', err);
         }
       }
-    } else {
-      try {
-        await api.removeMessageFor({
-          profile_id: user?.id,
-          message_id: messageId,
-        });
-        removeMessage(messageId);
-      } catch (err) {
-        console.error('Failed to delete message:', err);
-      }
-    }
-  }, [activeChat, user, emit, removeMessage]);
+    },
+    [activeChat, user, emit, removeMessage],
+  );
 
   const handleDeleteChat = useCallback(async () => {
     if (!activeChat) return;
@@ -164,10 +182,7 @@ export default function HomePage() {
       setActiveChat(null);
     } catch (err) {
       try {
-        await api.deleteChatForProfile({
-          chat_id: activeChat.id,
-          profile_id: user?.id,
-        });
+        await api.deleteChatForProfile(activeChat.id);
         setMessages([]);
         setActiveChat(null);
       } catch (e) {
@@ -176,9 +191,7 @@ export default function HomePage() {
     }
   }, [activeChat, user, emit]);
 
-  const handleUpdateProfile = useCallback((form) => {
-    // Profile was updated; could refresh user data
-  }, []);
+  const handleUpdateProfile = useCallback(() => checkAuth(), [checkAuth]);
 
   const responsiveSidebar = sidebarOpen;
 
@@ -205,13 +218,12 @@ export default function HomePage() {
         <ChatWindow
           activeChat={activeChat}
           messages={messages}
-          loading={messagesLoading}
+          loading={messagesLoading || chatOpening}
           typingUser={typingUser}
           onSend={handleSendMessage}
           onTyping={handleTypingEmit}
           onDeleteMessage={handleDeleteMessage}
           onDeleteChat={handleDeleteChat}
-          nativeLang={user?.native}
         />
       </motion.div>
 
@@ -220,6 +232,7 @@ export default function HomePage() {
         onClose={() => setSettingsOpen(false)}
         profile={user}
         onUpdate={handleUpdateProfile}
+        onLogout={logout}
       />
     </div>
   );

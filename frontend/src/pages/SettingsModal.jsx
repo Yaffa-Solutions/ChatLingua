@@ -4,7 +4,13 @@ import Button from '../components/ui/Button';
 import { LANGS } from '../lib/constants';
 import { api } from '../lib/api';
 
-export default function SettingsModal({ isOpen, onClose, profile, onUpdate }) {
+export default function SettingsModal({
+  isOpen,
+  onClose,
+  profile,
+  onUpdate,
+  onLogout,
+}) {
   const [form, setForm] = useState({
     native_language_id: 0,
     learning_language_id: 0,
@@ -45,37 +51,61 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdate }) {
     }
   };
 
+  const handleLogout = async () => {
+    setError(null);
+    try {
+      await onLogout?.();
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Settings" size="sm">
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <label className="block text-caption font-medium text-ink">Native Language</label>
+          <label className="block text-caption font-medium text-ink">
+            Native Language
+          </label>
           <select
             value={form.native_language_id}
-            onChange={(e) => setForm({ ...form, native_language_id: Number(e.target.value) })}
+            onChange={(e) =>
+              setForm({ ...form, native_language_id: Number(e.target.value) })
+            }
             className="w-full rounded-sm border border-stone-line bg-white px-4 py-2.5 text-body text-ink outline-none focus:border-marigold focus:ring-2 focus:ring-marigold/20"
           >
             {LANGS.map((lang, i) => (
-              <option key={i} value={i}>{lang}</option>
+              <option key={i} value={i}>
+                {lang}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-caption font-medium text-ink">Learning Language</label>
+          <label className="block text-caption font-medium text-ink">
+            Learning Language
+          </label>
           <select
             value={form.learning_language_id}
-            onChange={(e) => setForm({ ...form, learning_language_id: Number(e.target.value) })}
+            onChange={(e) =>
+              setForm({ ...form, learning_language_id: Number(e.target.value) })
+            }
             className="w-full rounded-sm border border-stone-line bg-white px-4 py-2.5 text-body text-ink outline-none focus:border-marigold focus:ring-2 focus:ring-marigold/20"
           >
             {LANGS.map((lang, i) => (
-              <option key={i} value={i}>{lang}</option>
+              <option key={i} value={i}>
+                {lang}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-caption font-medium text-ink">Profile Image URL</label>
+          <label className="block text-caption font-medium text-ink">
+            Profile Image URL
+          </label>
           <input
             type="url"
             value={form.image}
@@ -92,13 +122,32 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdate }) {
         )}
 
         <div className="flex gap-3 pt-2">
-          <Button variant="ghost" size="md" className="flex-1" onClick={onClose}>
+          <Button
+            variant="ghost"
+            size="md"
+            className="flex-1"
+            onClick={onClose}
+          >
             Cancel
           </Button>
-          <Button variant="primary" size="md" className="flex-1" loading={loading} onClick={handleSave}>
+          <Button
+            variant="primary"
+            size="md"
+            className="flex-1"
+            loading={loading}
+            onClick={handleSave}
+          >
             Save Changes
           </Button>
         </div>
+        <Button
+          variant="ghost"
+          size="md"
+          className="w-full"
+          onClick={handleLogout}
+        >
+          Sign Out
+        </Button>
       </div>
     </Modal>
   );

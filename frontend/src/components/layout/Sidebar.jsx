@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Avatar from '../ui/Avatar';
 import Skeleton from '../ui/Skeleton';
@@ -30,6 +30,12 @@ export default function Sidebar({
   }, []);
 
   const langName = useCallback((id) => LANGS[id] || 'Unknown', []);
+
+  const filteredProfiles = useMemo(() => {
+    if (!searchQuery.trim()) return profiles;
+    const q = searchQuery.toLowerCase();
+    return profiles.filter((p) => p.username?.toLowerCase().includes(q));
+  }, [profiles, searchQuery]);
 
   return (
     <>
@@ -119,7 +125,7 @@ export default function Sidebar({
                         </div>
                       ))}
                     </div>
-                  ) : profiles.length === 0 ? (
+                  ) : filteredProfiles.length === 0 ? (
                     <div className="text-center py-12">
                       <div className="w-14 h-14 mx-auto rounded-sm bg-paper border border-stone-line flex items-center justify-center mb-3">
                         <svg className="w-7 h-7 text-ink-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,11 +136,7 @@ export default function Sidebar({
                     </div>
                   ) : (
                     <div className="space-y-0.5">
-                      {profiles
-                        .filter((p) =>
-                          p.username?.toLowerCase().includes(searchQuery.toLowerCase())
-                        )
-                        .map((profile) => (
+                      {filteredProfiles.map((profile) => (
                           <motion.button
                             key={profile.id}
                             onClick={() => onSelectProfile(profile)}
