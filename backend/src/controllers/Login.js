@@ -47,4 +47,13 @@ const Login = (req, res, next) => {
     });
 };
 
-module.exports = { Login };
+const Logout = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+  res.status(200).json({ message: 'user logged out successfully' });
+};
+
+module.exports = { Login, Logout };

@@ -18,6 +18,15 @@ CREATE TABLE languages(
     name VARCHAR(150) NOT NULL UNIQUE
 );
 
+INSERT INTO languages (name) VALUES
+  ('Arabic'),
+  ('English'),
+  ('French'),
+  ('Spanish'),
+  ('German'),
+  ('Turkish'),
+  ('Italian');
+
 CREATE TABLE profiles (
     id SERIAL PRIMARY KEY,  
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,

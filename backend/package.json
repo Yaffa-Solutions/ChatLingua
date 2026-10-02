@@ -4,13 +4,14 @@
   "description": "ChatLingua backend server",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "cross-env NODE_ENV=test node src/database/migration/create-database.js && cross-env NODE_ENV=test jest --runInBand",
     "dev": "nodemon index.js",
     "start": "node index.js",
     "db:build": "cross-env NODE_ENV=dev node src/database/migration/create-database.js",
+    "db:cleanup:self-chats": "node src/database/migration/cleanup-invalid-self-chats.js",
     "secret": "node scripts/generate-secret.js",
     "db:seed": "node src/database/migration/seed-data.js",
-    "test:prod": "cross-env NODE_ENV=test npm run db:build && npm run db:seed  && jest"
+    "test:prod": "cross-env NODE_ENV=test node src/database/migration/create-database.js && cross-env NODE_ENV=test node src/database/migration/seed-data.js && cross-env NODE_ENV=test jest --runInBand"
   },
   "repository": {
     "type": "git",

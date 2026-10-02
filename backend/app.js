@@ -3,7 +3,6 @@ const { join } = require("path");
 const  config  = require("./config");
 
 const app = express();
-
 const routes = require("./src/routes");
 const { errorHandler } = require("./src/middleware/error");
 const cookieParser = require("cookie-parser");

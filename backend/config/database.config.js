@@ -1,19 +1,16 @@
 const developmentDatabaseConfig = {
   databaseUrl:
     process.env.DEV_DATABASE_URL ||
+    process.env.DB_URL ||
     'postgres://user:password@localhost:5432/mydatabase',
 };
 
 const productionDatabaseConfig = {
-  databaseUrl:
-    process.env.PROD_DATABASE_URL ||
-    'postgresql://neondb_owner:npg_6wk8iAtQnJsb@ep-long-sound-adbi3w8a-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+  databaseUrl: process.env.PROD_DATABASE_URL || process.env.DATABASE_URL,
 };
 
 const testDatabaseConfig = {
-  databaseUrl:
-    process.env.TEST_DATABASE_URL ||
-    'postgres://user:password@localhost:5432/mydatabase',
+  databaseUrl: process.env.TEST_DATABASE_URL || process.env.TEST_DB_URL,
 };
 
 const databases = {
@@ -22,6 +19,22 @@ const databases = {
   test: testDatabaseConfig,
 };
 
-const environment = process.env.NODE_ENV === 'production' ? 'prod' : process.env.NODE_ENV || 'dev';
+const environment =
+  process.env.NODE_ENV === 'production'
+    ? 'prod'
+    : process.env.NODE_ENV === 'test'
+      ? 'test'
+      : 'dev';
+
+if (environment === 'prod' && !productionDatabaseConfig.databaseUrl) {
+  throw new Error(
+    'PROD_DATABASE_URL or DATABASE_URL must be configured in production',
+  );
+}
+if (environment === 'test' && !testDatabaseConfig.databaseUrl) {
+  throw new Error(
+    'TEST_DATABASE_URL or TEST_DB_URL must be configured for tests',
+  );
+}
 
 module.exports = databases[environment] || databases.dev;
