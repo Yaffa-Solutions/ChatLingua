@@ -6,7 +6,7 @@ const developmentDatabaseConfig = {
 };
 
 const productionDatabaseConfig = {
-  databaseUrl: process.env.PROD_DATABASE_URL || process.env.DATABASE_URL,
+  databaseUrl: process.env.PROD_DATABASE_URL || 'postgresql://neondb_owner:npg_3xJaNL7Kwklo@ep-icy-leaf-aypavh36-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require&connect_timeout=60',
 };
 
 const testDatabaseConfig = {
